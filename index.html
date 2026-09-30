@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>新着サンプル動画まとめ</title>
+<meta name="robots" content="noindex">
+<!-- サンプル動画のサーバーはリファラを見て弾くことがあるため、必ず送る設定にしておく -->
+<meta name="referrer" content="no-referrer-when-downgrade">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+/* ============================================================
+   トークン
+   ============================================================ */
+:root{
+  --ink:        #12192B;
+  --ink-mute:   #5A6478;
+  --paper:      #F3F5F8;
+  --card:       #FFFFFF;
+  --line:       #DCE1EA;
+  --accent:     #1F5EFF;
+
+  --font-body: "Noto Sans JP", -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  --wrap: 880px;
+  --radius: 10px;
+
+  /* 動画の縦横比。
+     DMMサンプル再生プレイヤー（padding-top:75%）＝ 4 / 3
+     16:9の動画なら 16 / 9、縦動画なら 9 / 16
+     正本: knowledge/config.json の player.video_ratio */
+  --video-ratio: 4 / 3;
+
+  /* 動画どうしの間隔（縦 / 横） */
+  --gap-row: 26px;
+  --gap-col: 10px;
+}
+
+*,*::before,*::after{ box-sizing:border-box; }
+html{ -webkit-text-size-adjust:100%; }
+
+body{
+  margin:0;
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--font-body);
+  font-size:15px;
+  line-height:1.9;
+  letter-spacing:.01em;
+}
+
+.wrap{
+  width:100%;
+  max-width:var(--wrap);
+  margin-inline:auto;
+  padding:0 20px;
+}
+
+/* ============================================================
+   HTMLソース差し込みエリア
+   ============================================================ */
+.stage{
+  margin:40px 0 56px;
+  padding:24px;
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+}
+
+/* ============================================================
+   動画グリッド
+   3列固定。<li> を足すだけで 2段目・3段目…と折り返す
+   ============================================================ */
+.video-row{
+  display:grid;
+  grid-template-columns:repeat(3, 1fr);   /* SP・PC ともに列数固定 */
+  gap:var(--gap-row) var(--gap-col);
+  margin:0;
+  padding:0;
+  list-style:none;
+}
+
+.video-cell{
+  position:relative;
+  aspect-ratio:var(--video-ratio);
+  overflow:hidden;
+  border-radius:8px;
+  background:#0C1120;
+}
+.video-cell video,
+.video-cell iframe,
+.video-cell img{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  border:0;
+  object-fit:cover;
+  display:block;
+}
+/* MGS のサンプル動画スクリプトが吐き出すラッパー div を枠いっぱいに */
+.video-cell > div{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+}
+
+/* 各動画の下のテキスト */
+.cell-text{
+  margin:8px 0 0;
+  padding:9px 10px;
+  background:#F7F9FC;
+  border-radius:6px;
+  font-size:11.5px;
+  line-height:1.75;
+  color:var(--ink);
+}
+
+@media (max-width:420px){
+  :root{ --gap-row:20px; --gap-col:6px; }
+  .cell-text{ font-size:11px; padding:7px 8px; line-height:1.7; }
+  .stage{ padding:18px 14px; }
+}
+
+/* ============================================================
+   フッター
+   ============================================================ */
+.foot{
+  padding:0 0 56px;
+  font-family:var(--font-mono);
+  font-size:11px;
+  color:var(--ink-mute);
+}
+
+@media (prefers-reduced-motion:reduce){
+  *{ animation:none !important; transition:none !important; }
+}
+</style>
+</head>
+
+<body>
+
+<main class="wrap">
+
+  <!-- ==========================================================
+       動画グリッド
+
+       ★ この STAGE 区間は scripts/build.py が自動生成します。
+          手で編集しても次回の更新で上書きされます。
+          掲載内容を変えたいときは knowledge/config.json を編集してください。
+
+       ★ affi_id について
+          src の「affi_id=...」はDMMアフィリエイトIDです。
+          ここが空・未設定だと、プレイヤーをクリックしたときの遷移先URLが
+          不正になり「400 Bad Request」になります。消さないでください。
+          正本: knowledge/config.json の affiliate.affiliate_id
+       ========================================================== -->
+  <section class="stage">
+
+    <!-- ================= STAGE START ================= -->
+    <ul class="video-row">
+
+      <!-- ---------- 1段目 ---------- -->
+      <li>
+        <div class="video-cell">
+          <iframe src="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=cawd00706/size=1280_720/"
+                  scrolling="no" frameborder="0" allowfullscreen
+                  allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
+                  referrerpolicy="no-referrer-when-downgrade" loading="lazy"></iframe>
+        </div>
+        <p class="cell-text">優しくて安定した彼氏ができても…結局、モノみたいにオナホみたいに都合よく雑に扱うクズ男に弄ばれたい 伊藤舞雪<br>伊藤舞雪</p>
+      </li>
+      <li>
+        <div class="video-cell">
+          <iframe src="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=sone00278/size=1280_720/"
+                  scrolling="no" frameborder="0" allowfullscreen
+                  allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
+                  referrerpolicy="no-referrer-when-downgrade" loading="lazy"></iframe>
+        </div>
+        <p class="cell-text">教え子に誘惑され一度抱いたあの日から…ダメとわかっていても沼っていく禁断関係 渚あいり<br>渚あいり</p>
+      </li>
+      <li>
+        <div class="video-cell">
+          <iframe src="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=moer00002/size=1280_720/"
+                  scrolling="no" frameborder="0" allowfullscreen
+                  allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
+                  referrerpolicy="no-referrer-when-downgrade" loading="lazy"></iframe>
+        </div>
+        <p class="cell-text">清楚な現役看護師のくせにこのドMっぷりが…エロい。デカチンで喉とマ●コを突き堕とされヨダレマン汁たれ流し衝撃の半狂乱 AVデビュー。 夢川ほの香<br>夢川ほの香</p>
+      </li>
+
+      <!-- ---------- 2段目 ---------- -->
+      <li>
+        <div class="video-cell">
+          <iframe src="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=sone00150/size=1280_720/"
+                  scrolling="no" frameborder="0" allowfullscreen
+                  allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
+                  referrerpolicy="no-referrer-when-downgrade" loading="lazy"></iframe>
+        </div>
+        <p class="cell-text">照れて、惚れて、イキ止まない。ホテルでじっくりねっとり何度も何度も求め合う丸一日中ヤリまくり濃密デート 川越にこ<br>川越にこ</p>
+      </li>
+      <li>
+        <div class="video-cell">
+          <iframe src="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=huntc00080/size=1280_720/"
+                  scrolling="no" frameborder="0" allowfullscreen
+                  allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
+                  referrerpolicy="no-referrer-when-downgrade" loading="lazy"></iframe>
+        </div>
+        <p class="cell-text">彼女の女友達2人とヤッては寝て…を繰り返すだけの狂った三日間。彼女が帰省中に彼女の友達と浮気セックスしまくりのヤリ部屋となったボクの部屋。<br>狂った三日間</p>
+      </li>
+      <li>
+        <div class="video-cell">
+          <iframe src="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=1sdmm00201/size=1280_720/"
+                  scrolling="no" frameborder="0" allowfullscreen
+                  allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
+                  referrerpolicy="no-referrer-when-downgrade" loading="lazy"></iframe>
+        </div>
+        <p class="cell-text">マジックミラー号からの脱出！7 LIKEとLOVEの違いが分からない18歳応援SP！制限時間100分でSEXしないと脱出できないマジックミラー号に、絶対にヤってはイケない関係の2…<br>マジックミラー号からの脱出</p>
+      </li>
+
+      <!-- ---------- 3段目 ---------- -->
+      <li>
+        <div class="video-cell">
+          <iframe src="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=midv00400/size=1280_720/"
+                  scrolling="no" frameborder="0" allowfullscreen
+                  allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
+                  referrerpolicy="no-referrer-when-downgrade" loading="lazy"></iframe>
+        </div>
+        <p class="cell-text">三上悠亜×MOODYZ 一回限りの限定復活！？ひとりバコバコバスツアー2023 引退直前！最後の大感謝スペシャル！！<br>三上悠亜</p>
+      </li>
+      <li>
+        <div class="video-cell">
+          <iframe src="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=ssis00468/size=1280_720/"
+                  scrolling="no" frameborder="0" allowfullscreen
+                  allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
+                  referrerpolicy="no-referrer-when-downgrade" loading="lazy"></iframe>
+        </div>
+        <p class="cell-text">河北彩花の濃厚な唾液性交<br>河北彩花（河北彩伽）</p>
+      </li>
+      <li>
+        <div class="video-cell">
+          <iframe src="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=mida00518/size=1280_720/"
+                  scrolling="no" frameborder="0" allowfullscreen
+                  allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
+                  referrerpolicy="no-referrer-when-downgrade" loading="lazy"></iframe>
+        </div>
+        <p class="cell-text">その他には塩対応なのにボクだけヌイてくれるノーブラ乳首びんびん即ヌキ女神マネージャーとヌキ約束20発 宮下玲奈<br>宮下玲奈</p>
+      </li>
+
+    </ul>
+    <!-- ================== STAGE END ================== -->
+
+  </section>
+
+</main>
+
+<footer class="foot">
+  <div class="wrap">&lt;!-- end --&gt;</div>
+</footer>
+
+</body>
+</html>
