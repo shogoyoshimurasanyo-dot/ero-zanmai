@@ -1,178 +1,1205 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
+<meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>新着サンプル動画まとめ｜三昧タイム</title>
 <meta name="robots" content="noindex">
-<!-- サンプル動画のサーバーはリファラを見て弾くことがあるため、必ず送る設定にしておく -->
-<meta name="referrer" content="no-referrer-when-downgrade">
-
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/css/common.css">
+<meta name="rating" content="adult">
+<title>エロ三昧タイム</title>
+<style>
+  :root {
+    --bg: #0f0f12; --panel: #1a1a20; --line: #2a2a33;
+    --text: #ececf1; --muted: #9a9aa8; --accent: #ff3d6e; --accent-ink: #fff;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+         font-family: system-ui, -apple-system, "Hiragino Sans", "Yu Gothic UI", sans-serif; line-height: 1.5; }
+  header { padding: 20px 16px 8px; max-width: 1400px; margin: 0 auto; }
+  h1 { margin: 0; font-size: 22px; }
+  .sub { margin: 4px 0 0; color: var(--muted); font-size: 13px; }
+  main { max-width: 1400px; margin: 0 auto; padding: 8px 16px 40px; }
+  .grid { list-style: none; margin: 0; padding: 0; display: grid; gap: 16px;
+          grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; overflow: hidden;
+          display: flex; flex-direction: column; }
+  .thumb { position: relative; display: block; width: 100%; aspect-ratio: 16 / 9; padding: 0; border: 0;
+           background: #000; cursor: pointer; overflow: hidden; }
+  .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .2s; }
+  .thumb:hover img { transform: scale(1.03); }
+  .thumb iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+  .play { position: absolute; left: 50%; top: 50%; width: 56px; height: 56px; margin: -28px 0 0 -28px;
+          border-radius: 50%; background: rgba(0,0,0,.6); border: 2px solid #fff; }
+  .play::after { content: ""; position: absolute; left: 21px; top: 15px;
+                 border-style: solid; border-width: 12px 0 12px 18px; border-color: transparent transparent transparent #fff; }
+  .rank { position: absolute; left: 8px; top: 8px; background: var(--accent); color: var(--accent-ink);
+          font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 4px; }
+  .body { padding: 10px 12px 12px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
+  .title { margin: 0; font-size: 14px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .meta { margin: 0; font-size: 12px; color: var(--muted); }
+  .cta { margin-top: auto; display: block; text-align: center; background: var(--accent); color: var(--accent-ink);
+         text-decoration: none; font-size: 13px; font-weight: 700; padding: 8px; border-radius: 6px; }
+  .cta:hover { filter: brightness(1.1); }
+  footer { text-align: center; color: var(--muted); font-size: 12px; padding: 0 16px 32px; }
+  #age { position: fixed; inset: 0; background: rgba(0,0,0,.92); display: none; align-items: center;
+         justify-content: center; z-index: 10; padding: 16px; }
+  #age.show { display: flex; }
+  #age .box { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 28px 24px;
+              max-width: 420px; text-align: center; }
+  #age h2 { margin: 0 0 8px; font-size: 20px; }
+  #age p { margin: 0 0 20px; color: var(--muted); font-size: 14px; }
+  #age .btns { display: flex; gap: 12px; justify-content: center; }
+  #age button, #age a { font: inherit; font-weight: 700; padding: 10px 20px; border-radius: 6px; border: 0;
+                        cursor: pointer; text-decoration: none; }
+  #age .yes { background: var(--accent); color: var(--accent-ink); }
+  #age .no { background: var(--line); color: var(--text); }
+</style>
 </head>
-
 <body>
-<noscript><p style="text-align:center;padding:40px 16px">このサイトの閲覧にはJavaScriptを有効にしてください。</p></noscript>
-
-<!-- 年齢確認：「はい」を押すまで <template> の中身は読み込まれない（/assets/js/age-gate.js） -->
-<template id="site-content">
-
-<header class="site-head">
-  <div class="wrap">
-    <a class="site-logo" href="/">ざんまい<span>たいむ。</span></a>
-    <nav class="site-nav">
-      <a href="/" aria-current="page">新着</a>
-      <a href="/actress/">女優一覧</a>
-    </nav>
+<div id="age" role="dialog" aria-modal="true" aria-labelledby="age-title">
+  <div class="box">
+    <h2 id="age-title">年齢確認</h2>
+    <p>このサイトはアダルトコンテンツを含みます。<br>18歳未満の方はご利用いただけません。</p>
+    <div class="btns">
+      <button class="yes" type="button">18歳以上です</button>
+      <a class="no" href="https://www.google.com/">退出する</a>
+    </div>
   </div>
+</div>
+<header>
+  <h1>エロ三昧タイム</h1>
+  <p class="sub">2026年10月1日 更新 ・ 本日の 100 本（サムネイルをタップでサンプル再生）</p>
 </header>
-
-<main class="wrap">
-
-  <!-- 広告（PR）表記 -->
-  <p class="pr-note">
-    <span class="pr-badge">PR</span>
-    当サイトはアフィリエイト広告を利用しています。掲載している動画は FANZA（DMM）のサンプル動画で、リンク先で購入・視聴できます。
-    <a href="/policy/">サイトポリシー</a>
-  </p>
-
-  <!-- ==========================================================
-       動画グリッド
-
-       ★ この STAGE 区間は scripts/build.py が自動生成します。
-          手で編集しても次回の更新で上書きされます。
-          掲載内容を変えたいときは knowledge/config.json を編集してください。
-
-       ★ affi_id について
-          src の「affi_id=...」はDMMアフィリエイトIDです。
-          ここが空・未設定だと、プレイヤーをクリックしたときの遷移先URLが
-          不正になり「400 Bad Request」になります。消さないでください。
-          正本: knowledge/config.json の affiliate.affiliate_id
-       ========================================================== -->
-  <section class="stage">
-
-    <!-- ================= STAGE START ================= -->
-    <ul class="video-row">
-
-      <!-- ---------- 1段目 ---------- -->
-      <li>
-        <div class="video-cell">
-          <iframe src="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=sone00272/size=1280_720/"
-                  scrolling="no" frameborder="0" allowfullscreen
-                  allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
-                  referrerpolicy="no-referrer-when-downgrade" loading="lazy"></iframe>
+<main>
+  <ul class="grid">
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=1namh00064/size=1280_720/" aria-label="元気なパイパン膣に13発 はじめての真正中出し解禁 花守夏歩 のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/1namh00064/1namh00064pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span><span class="rank">人気2位</span>
+        </button>
+        <div class="body">
+          <p class="title">1. 元気なパイパン膣に13発 はじめての真正中出し解禁 花守夏歩</p>
+          <p class="meta">花守夏歩 / 2026-05-11</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3D1namh00064&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
         </div>
-        <p class="cell-text">年末年始、広い学生寮で女学生とおじさん管理人が2人きり… 禁断シチュに欲情した中年ち●ぽと寂しさ埋めたい若い少女おま●こは相性良すぎて合体し続けた。 浅野こころ<br>浅野こころ</p>
       </li>
-      <li>
-        <div class="video-cell">
-          <iframe src="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=midv00855/size=1280_720/"
-                  scrolling="no" frameborder="0" allowfullscreen
-                  allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
-                  referrerpolicy="no-referrer-when-downgrade" loading="lazy"></iframe>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=1sods00074/size=1280_720/" aria-label="ゆるふわ系保育科女子大生 やさしい笑顔・Hカップ・くびれで癒される10時間！18作品18本番 彩月七緒 のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/1sods00074/1sods00074pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span><span class="rank">人気3位</span>
+        </button>
+        <div class="body">
+          <p class="title">2. ゆるふわ系保育科女子大生 やさしい笑顔・Hカップ・くびれで癒される10時間！18作品18本番 彩月七緒</p>
+          <p class="meta">彩月七緒 / 2025-09-02</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3D1sods00074&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
         </div>
-        <p class="cell-text">いつも標準語のひなの先生、欲情すると方言淫語で痴女ってきて僕の恋人が近くにいても14発搾精させてくる巨乳女教師 博多弁卑語NTR 九野ひなの<br>九野ひなの</p>
       </li>
-      <li>
-        <div class="video-cell">
-          <iframe src="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=oae00291/size=1280_720/"
-                  scrolling="no" frameborder="0" allowfullscreen
-                  allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
-                  referrerpolicy="no-referrer-when-downgrade" loading="lazy"></iframe>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=snos00313/size=1280_720/" aria-label="最強ヒロインの全部でオナニーしようよ【ベロキス・フェラ・パイズリ・手コキ・脚コキ・美顔面・おま●こ特化】全身全技ズリネタコンプリート 極上オナニーサポート 瀬戸環奈 のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/snos00313/snos00313pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span><span class="rank">人気5位</span>
+        </button>
+        <div class="body">
+          <p class="title">3. 最強ヒロインの全部でオナニーしようよ【ベロキス・フェラ・パイズリ・手コキ・脚コキ・美顔面・おま●こ特化】全身全技ズリネタコンプリート 極上オナニーサポート 瀬戸環奈</p>
+          <p class="meta">瀬戸環奈 / 2026-09-04</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3Dsnos00313&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
         </div>
-        <p class="cell-text">裸神 瀬戸環奈<br>瀬戸環奈</p>
       </li>
-
-      <!-- ---------- 2段目 ---------- -->
-      <li>
-        <div class="video-cell">
-          <iframe src="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=mimk00168/size=1280_720/"
-                  scrolling="no" frameborder="0" allowfullscreen
-                  allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
-                  referrerpolicy="no-referrer-when-downgrade" loading="lazy"></iframe>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=smcd00018/size=1280_720/" aria-label="厳選美少女 素人ムクムクBEST 最高にエロい女子とSEXしまくり制服・中出し・極上フェラチオ ヌケる連続射精 超尺326分 のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/smcd00018/smcd00018pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span><span class="rank">人気6位</span>
+        </button>
+        <div class="body">
+          <p class="title">4. 厳選美少女 素人ムクムクBEST 最高にエロい女子とSEXしまくり制服・中出し・極上フェラチオ ヌケる連続射精 超尺326分</p>
+          <p class="meta">2024-06-12</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3Dsmcd00018&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
         </div>
-        <p class="cell-text">1000円カットのおネエさんにスいてもらう本。3 実写版<br>1000円カットのおネエさんにスいてもらう本。</p>
       </li>
-      <li>
-        <div class="video-cell">
-          <iframe src="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=midv00670/size=1280_720/"
-                  scrolling="no" frameborder="0" allowfullscreen
-                  allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
-                  referrerpolicy="no-referrer-when-downgrade" loading="lazy"></iframe>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=ssis00985/size=1280_720/" aria-label="働く巨乳お姉さんとあんなコト、こんなコトできる禁断の妄想10エッチ 小宵こなん のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/ssis00985/ssis00985pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span><span class="rank">人気7位</span>
+        </button>
+        <div class="body">
+          <p class="title">5. 働く巨乳お姉さんとあんなコト、こんなコトできる禁断の妄想10エッチ 小宵こなん</p>
+          <p class="meta">小宵こなん / 2023-12-22</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3Dssis00985&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
         </div>
-        <p class="cell-text">帰省先のド田舎で僕の東京カノジョに嫉妬した幼馴染の澪に汗だくジェラシ―淫語で精子ぶっこ抜かれた…夏の思い出。 石川澪<br>石川澪</p>
       </li>
-      <li>
-        <div class="video-cell">
-          <iframe src="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=sone00224/size=1280_720/"
-                  scrolling="no" frameborder="0" allowfullscreen
-                  allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
-                  referrerpolicy="no-referrer-when-downgrade" loading="lazy"></iframe>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=sone00270/size=1280_720/" aria-label="幼馴染にふざけてSMプレイしてみたら…ドMに目覚めていいなり敏感マゾペットに― 未歩なな のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/sone00270/sone00270pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span><span class="rank">人気8位</span>
+        </button>
+        <div class="body">
+          <p class="title">6. 幼馴染にふざけてSMプレイしてみたら…ドMに目覚めていいなり敏感マゾペットに― 未歩なな</p>
+          <p class="meta">未歩なな / 2024-07-19</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3Dsone00270&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
         </div>
-        <p class="cell-text">ド級新人‘倉木華’の敏感長身ボディを更に！とことん！めちゃイキ性開発3本番！初体験スペシャル<br>倉木華</p>
       </li>
-
-      <!-- ---------- 3段目 ---------- -->
-      <li>
-        <div class="video-cell">
-          <iframe src="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=ssis00839/size=1280_720/"
-                  scrolling="no" frameborder="0" allowfullscreen
-                  allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
-                  referrerpolicy="no-referrer-when-downgrade" loading="lazy"></iframe>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=13dsvr01998/size=1280_720/" aria-label="【VR】【8K】松永あかり初VR 同棲生活×顔面特化×10射精 アニメ声の彼女と休日は終日エッチなことしてます。 のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/13dsvr01998/13dsvr01998pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span><span class="rank">人気9位</span>
+        </button>
+        <div class="body">
+          <p class="title">7. 【VR】【8K】松永あかり初VR 同棲生活×顔面特化×10射精 アニメ声の彼女と休日は終日エッチなことしてます。</p>
+          <p class="meta">松永あかり / 2026-07-09</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3D13dsvr01998&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
         </div>
-        <p class="cell-text">従順かつ性的な美麗Mペット 河北彩花<br>河北彩花（河北彩伽）</p>
       </li>
-      <li>
-        <div class="video-cell">
-          <iframe src="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=h_021nps00472/size=1280_720/"
-                  scrolling="no" frameborder="0" allowfullscreen
-                  allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
-                  referrerpolicy="no-referrer-when-downgrade" loading="lazy"></iframe>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=ymbp00001/size=1280_720/" aria-label="借金漬けヤンママAV返済 須藤かおる のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/ymbp00001/ymbp00001pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span><span class="rank">人気10位</span>
+        </button>
+        <div class="body">
+          <p class="title">8. 借金漬けヤンママAV返済 須藤かおる</p>
+          <p class="meta">須藤かおる / 2026-09-18</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3Dymbp00001&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
         </div>
-        <p class="cell-text">ガチナンパ！ 結婚式帰りの女性がお口だけでコンドーム装着に挑戦！妊娠願望が強くなって最後はゴムを外して何度も中出し懇願！<br>ガチナンパ！（ピーターズ）</p>
       </li>
-      <li>
-        <div class="video-cell">
-          <iframe src="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=1sdjs00364/size=1280_720/"
-                  scrolling="no" frameborder="0" allowfullscreen
-                  allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
-                  referrerpolicy="no-referrer-when-downgrade" loading="lazy"></iframe>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=mizd00484/size=1280_720/" aria-label="MOODYZ専属ありがとう！ 松本いちか’ほぼ’大全集！43作品96SEX♪！1440分BEST のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/mizd00484/mizd00484pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span><span class="rank">人気11位</span>
+        </button>
+        <div class="body">
+          <p class="title">9. MOODYZ専属ありがとう！ 松本いちか’ほぼ’大全集！43作品96SEX♪！1440分BEST</p>
+          <p class="meta">松本いちか, 小野六花, 倉本すみれ, 枢木あおい, 永瀬ゆい, 新井リマ, 森日向子, 波多野結衣, 天馬ゆい, 沙月恵奈, 久留木玲, 木下ひまり（花沢ひまり）, 花狩まい, 百瀬あすか, 工藤ララ, あべみかこ, 天然美月（天然かのん） / 2025-09-26</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3Dmizd00484&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
         </div>
-        <p class="cell-text">人事部の休日 in 川越 与田ひかげ<br>与田ひかげ</p>
       </li>
-
-    </ul>
-    <!-- ================== STAGE END ================== -->
-
-  </section>
-
-  <section class="stage updates">
-    <h2 class="stage-title">最新の更新</h2>
-  <!-- UPDATES:START (scripts/build_index.py が自動生成。手で編集しない) -->
-  <ul>
-
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=1start00568/size=1280_720/" aria-label="苦手な同僚と飲み会帰りに勢いでワンナイトしてしまったら膣奥フィットするチ〇ポの相性が良すぎて人生最高の絶頂感を味わってしまい…全然好きじゃないのにおかわりセックスしまくった 青空ひかり のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/1start00568/1start00568pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span><span class="rank">人気12位</span>
+        </button>
+        <div class="body">
+          <p class="title">10. 苦手な同僚と飲み会帰りに勢いでワンナイトしてしまったら膣奥フィットするチ〇ポの相性が良すぎて人生最高の絶頂感を味わってしまい…全然好きじゃないのにおかわりセックスしまくった 青空ひかり</p>
+          <p class="meta">青空ひかり / 2026-05-12</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3D1start00568&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=ssis00875/size=1280_720/" aria-label="河北彩花の完全プライベートセックス全部撮った！ 圧倒的に支持される新時代トップ女優と朝まで2人きりの生々ハメ撮りFUCK のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/ssis00875/ssis00875pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span><span class="rank">人気13位</span>
+        </button>
+        <div class="body">
+          <p class="title">11. 河北彩花の完全プライベートセックス全部撮った！ 圧倒的に支持される新時代トップ女優と朝まで2人きりの生々ハメ撮りFUCK</p>
+          <p class="meta">河北彩花（河北彩伽） / 2023-09-22</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3Dssis00875&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=1start00545/size=1280_720/" aria-label="マジックミラーペアルームNTRエステ 真横に彼氏がいるのに、全身愛撫されて声我慢しながらサイレント絶頂 小笠原菜乃 のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/1start00545/1start00545pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span><span class="rank">人気14位</span>
+        </button>
+        <div class="body">
+          <p class="title">12. マジックミラーペアルームNTRエステ 真横に彼氏がいるのに、全身愛撫されて声我慢しながらサイレント絶頂 小笠原菜乃</p>
+          <p class="meta">小笠原菜乃 / 2026-05-12</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3D1start00545&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=ssis00982/size=1280_720/" aria-label="頼まれたらところ構わずヤラせてくれて部活もオナニーもサポートしてくれる世話好きマネージャー 架乃ゆら のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/ssis00982/ssis00982pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span><span class="rank">人気16位</span>
+        </button>
+        <div class="body">
+          <p class="title">13. 頼まれたらところ構わずヤラせてくれて部活もオナニーもサポートしてくれる世話好きマネージャー 架乃ゆら</p>
+          <p class="meta">架乃ゆら / 2023-12-22</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3Dssis00982&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=snos00377/size=1280_720/" aria-label="「今日はアブノーマルなエッチがしたい…」 そう甘えるCA彼女を無茶苦茶にしたらドMに目覚めた 河北彩花 のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/snos00377/snos00377pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span><span class="rank">人気17位</span>
+        </button>
+        <div class="body">
+          <p class="title">14. 「今日はアブノーマルなエッチがしたい…」 そう甘えるCA彼女を無茶苦茶にしたらドMに目覚めた 河北彩花</p>
+          <p class="meta">河北彩花（河北彩伽） / 2026-09-18</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3Dsnos00377&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=midv00808/size=1280_720/" aria-label="超頭脳派捜査官ナナ 催淫ガス研究所潜入捜査編 八木奈々 のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/midv00808/midv00808pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span><span class="rank">人気18位</span>
+        </button>
+        <div class="body">
+          <p class="title">15. 超頭脳派捜査官ナナ 催淫ガス研究所潜入捜査編 八木奈々</p>
+          <p class="meta">八木奈々 / 2024-08-02</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3Dmidv00808&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=midv00732/size=1280_720/" aria-label="爆乳Qカップでチ○ポを包み込む最上級痴女ソープお姉さんのパイズリ風俗フルコース Himari のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/midv00732/midv00732pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span><span class="rank">人気19位</span>
+        </button>
+        <div class="body">
+          <p class="title">16. 爆乳Qカップでチ○ポを包み込む最上級痴女ソープお姉さんのパイズリ風俗フルコース Himari</p>
+          <p class="meta">Himari / 2024-06-14</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3Dmidv00732&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=snos00334/size=1280_720/" aria-label="最強ビジュOLさん、出張先で死ぬほど嫌いな中年上司と相部屋… でも過激セクハラにまさかの快楽堕ちしちゃう！ 瀬戸環奈 のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/snos00334/snos00334pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span><span class="rank">人気20位</span>
+        </button>
+        <div class="body">
+          <p class="title">17. 最強ビジュOLさん、出張先で死ぬほど嫌いな中年上司と相部屋… でも過激セクハラにまさかの快楽堕ちしちゃう！ 瀬戸環奈</p>
+          <p class="meta">瀬戸環奈 / 2026-08-07</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3Dsnos00334&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=midv00581/size=1280_720/" aria-label="僕のオナ禁を知った彼女の友人でナースの九野さんに 焦らし見つめフェラチオ 美白おっぱい授乳手コキ デカ尻杭打ち騎乗位で溜まる・暴発を繰り返させられる無限ループ射精管理5日間 九野ひなの のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/midv00581/midv00581pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span><span class="rank">人気21位</span>
+        </button>
+        <div class="body">
+          <p class="title">18. 僕のオナ禁を知った彼女の友人でナースの九野さんに 焦らし見つめフェラチオ 美白おっぱい授乳手コキ デカ尻杭打ち騎乗位で溜まる・暴発を繰り返させられる無限ループ射精管理5日間 九野ひなの</p>
+          <p class="meta">九野ひなの / 2023-12-29</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3Dmidv00581&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=sone00758/size=1280_720/" aria-label="最強ヒロインと最高のオナニー体験を！セトカンが全力でちんしこサポート夢の8コーナー3時間スペシャル 瀬戸環奈 のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/sone00758/sone00758pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span><span class="rank">人気22位</span>
+        </button>
+        <div class="body">
+          <p class="title">19. 最強ヒロインと最高のオナニー体験を！セトカンが全力でちんしこサポート夢の8コーナー3時間スペシャル 瀬戸環奈</p>
+          <p class="meta">瀬戸環奈 / 2025-07-04</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3Dsone00758&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=1dandy8kvr00002/size=1280_720/" aria-label="【VR】【8KVR】混浴温泉で母親の爆乳ママ友二人に挟まれておもちゃにされた僕 のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/1dandy8kvr00002/1dandy8kvr00002pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span><span class="rank">人気24位</span>
+        </button>
+        <div class="body">
+          <p class="title">20. 【VR】【8KVR】混浴温泉で母親の爆乳ママ友二人に挟まれておもちゃにされた僕</p>
+          <p class="meta">田中ねね, 吉根ゆりあ / 2026-09-20</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3D1dandy8kvr00002&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=1start00373/size=1280_720/" aria-label="息子が通う保育園の美人先生と妻子が実家に帰省中に自宅密会をして1週間ヤリまくった絶倫不倫セックス 青空ひかり のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/1start00373/1start00373pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span><span class="rank">人気25位</span>
+        </button>
+        <div class="body">
+          <p class="title">21. 息子が通う保育園の美人先生と妻子が実家に帰省中に自宅密会をして1週間ヤリまくった絶倫不倫セックス 青空ひかり</p>
+          <p class="meta">青空ひかり / 2025-08-05</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3D1start00373&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=h_1472kkwz00001/size=1280_720/" aria-label="お気に入り数3000越人気20作品総集編 よくばりセット極 のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/h_1472kkwz00001/h_1472kkwz00001pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span><span class="rank">人気26位</span>
+        </button>
+        <div class="body">
+          <p class="title">22. お気に入り数3000越人気20作品総集編 よくばりセット極</p>
+          <p class="meta">2025-04-24</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3Dh_1472kkwz00001&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=rsrvr00032/size=1280_720/" aria-label="【VR】出張先のスナックで出会ったママが乳首ビンビン巨乳で誘惑してきたのでお店で！さらに自宅で！ほろ酔いぶっ飛び2SEX VR 8Kだからママの性格の良さとエロさが丸わかり！地方のスナックに来てよかった神体験！！ のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/rsrvr00032/rsrvr00032pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span><span class="rank">人気27位</span>
+        </button>
+        <div class="body">
+          <p class="title">23. 【VR】出張先のスナックで出会ったママが乳首ビンビン巨乳で誘惑してきたのでお店で！さらに自宅で！ほろ酔いぶっ飛び2SEX VR 8Kだからママの性格の良さとエロさが丸わかり！地方のスナックに来てよかった神体験！！</p>
+          <p class="meta">2024-06-21</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3Drsrvr00032&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=mida00653/size=1280_720/" aria-label="りっかと僕はセフレ以上、恋人未満いつでもハメさせてくれるのに中出しNGハメ友に内緒でコンドーム外し種付け 小野六花 のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/mida00653/mida00653pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span><span class="rank">人気28位</span>
+        </button>
+        <div class="body">
+          <p class="title">24. りっかと僕はセフレ以上、恋人未満いつでもハメさせてくれるのに中出しNGハメ友に内緒でコンドーム外し種付け 小野六花</p>
+          <p class="meta">小野六花 / 2026-05-29</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3Dmida00653&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=ofje00380/size=1280_720/" aria-label="河北彩花 Re:start！ 1st BEST 12title 12hour のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/ofje00380/ofje00380pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span><span class="rank">人気29位</span>
+        </button>
+        <div class="body">
+          <p class="title">25. 河北彩花 Re:start！ 1st BEST 12title 12hour</p>
+          <p class="meta">河北彩花（河北彩伽） / 2022-10-07</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3Dofje00380&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=blor00289/size=1280_720/" aria-label="ドSな美人絵師さん 男を責めるのが趣味の強めクールビューティーがチ●ポ堕ち 最初は余裕たっぷりだったが、正確な巨根ピストン喰らい続け メス顔晒してイってしまう！ のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/blor00289/blor00289pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span><span class="rank">人気30位</span>
+        </button>
+        <div class="body">
+          <p class="title">26. ドSな美人絵師さん 男を責めるのが趣味の強めクールビューティーがチ●ポ堕ち 最初は余裕たっぷりだったが、正確な巨根ピストン喰らい続け メス顔晒してイってしまう！</p>
+          <p class="meta">2026-02-21</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3Dblor00289&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=dass00459/size=1280_720/" aria-label="完璧美尻マニアックス。オヂサンは動いちゃダメ！絶対！じゅぶったマン汁垂れ流し！高反発バウンド尻見せつけプニプニセックス 松本いちか のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/dass00459/dass00459pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span><span class="rank">人気31位</span>
+        </button>
+        <div class="body">
+          <p class="title">27. 完璧美尻マニアックス。オヂサンは動いちゃダメ！絶対！じゅぶったマン汁垂れ流し！高反発バウンド尻見せつけプニプニセックス 松本いちか</p>
+          <p class="meta">松本いちか / 2024-09-06</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3Ddass00459&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=hsoda00034/size=1280_720/" aria-label="着床器官 中城葵 のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/hsoda00034/hsoda00034pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span><span class="rank">人気32位</span>
+        </button>
+        <div class="body">
+          <p class="title">28. 着床器官 中城葵</p>
+          <p class="meta">中城葵 / 2024-09-06</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3Dhsoda00034&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=midv00834/size=1280_720/" aria-label="涎とろっとろ敏感美少女と濃厚オヤジのベロチューフルコース 宮崎千尋 のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/midv00834/midv00834pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span><span class="rank">人気33位</span>
+        </button>
+        <div class="body">
+          <p class="title">29. 涎とろっとろ敏感美少女と濃厚オヤジのベロチューフルコース 宮崎千尋</p>
+          <p class="meta">宮崎千尋 / 2024-08-30</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3Dmidv00834&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=midv00305/size=1280_720/" aria-label="石川澪とラブラブでハメまくる 世界で一番幸せな同棲しよっ！ のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/midv00305/midv00305pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span><span class="rank">人気34位</span>
+        </button>
+        <div class="body">
+          <p class="title">30. 石川澪とラブラブでハメまくる 世界で一番幸せな同棲しよっ！</p>
+          <p class="meta">石川澪 / 2023-04-28</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3Dmidv00305&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=cjvr00065/size=1280_720/" aria-label="【VR】淫語と射精管理で焦らして抜きまくる神尻ギャル風俗VR 長尺90分13射精 逢沢みゆ のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/cjvr00065/cjvr00065pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span>
+        </button>
+        <div class="body">
+          <p class="title">31. 【VR】淫語と射精管理で焦らして抜きまくる神尻ギャル風俗VR 長尺90分13射精 逢沢みゆ</p>
+          <p class="meta">逢沢みゆ / 2026-09-24</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3Dcjvr00065&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=h_1096bdsm00091/size=1280_720/" aria-label="緊縛哀犬夫人 宮西ひかる のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/h_1096bdsm00091/h_1096bdsm00091pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span>
+        </button>
+        <div class="body">
+          <p class="title">32. 緊縛哀犬夫人 宮西ひかる</p>
+          <p class="meta">宮西ひかる / 2026-09-25</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3Dh_1096bdsm00091&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=149rd01377/size=1280_720/" aria-label="熟女 淫らな午後 夫の弟に寝取られて清純な五十路妻の貞操は… 定年退職した先生がデリヘルで人妻を頼んだら昔の教え子が… のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/149rd01377/149rd01377pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span>
+        </button>
+        <div class="body">
+          <p class="title">33. 熟女 淫らな午後 夫の弟に寝取られて清純な五十路妻の貞操は… 定年退職した先生がデリヘルで人妻を頼んだら昔の教え子が…</p>
+          <p class="meta">美ノ辺さやか, 平岡里枝子 / 2026-09-30</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3D149rd01377&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=h_1454spar01203/size=1280_720/" aria-label="チ〇ポ狂い 欲情ボディ バイブ責めから激しい濃厚セックス エロ熟.CH全員ぶっかけ2名収録 のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/h_1454spar01203/h_1454spar01203pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span>
+        </button>
+        <div class="body">
+          <p class="title">34. チ〇ポ狂い 欲情ボディ バイブ責めから激しい濃厚セックス エロ熟.CH全員ぶっかけ2名収録</p>
+          <p class="meta">愛川えり, 深津佳乃 / 2026-09-26</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3Dh_1454spar01203&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=wanz00802/size=1280_720/" aria-label="美谷朱里の凄テクを我慢できれば生★中出しSEX！ のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/wanz00802/wanz00802pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span><span class="rank">人気188位</span>
+        </button>
+        <div class="body">
+          <p class="title">35. 美谷朱里の凄テクを我慢できれば生★中出しSEX！</p>
+          <p class="meta">美谷朱音（美谷朱里） / 2018-10-27</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3Dwanz00802&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=ofje00540/size=1280_720/" aria-label="顔だけでヌケるのに脱いでも凄い！天が二物を与えた顔も体もSクラス神女優26名との80SEX のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/ofje00540/ofje00540pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span><span class="rank">人気162位</span>
+        </button>
+        <div class="body">
+          <p class="title">36. 顔だけでヌケるのに脱いでも凄い！天が二物を与えた顔も体もSクラス神女優26名との80SEX</p>
+          <p class="meta">瀬戸環奈, 河北彩花（河北彩伽）, 金松季歩, 田野憂, 七ツ森りり, 篠真有, 三田真鈴, 明日葉みつは, 川越にこ, 倉木華, 三上悠亜, 兒玉七海, 南沢海香, 山手梨愛, 安齋らら, 浅野こころ, 楓ふうあ, 小宵こなん, 東雲みれい, 汐世（有栖花あか）, うんぱい, 夢乃あいか, 小島みなみ, 日向かえで, 愛宝すず / 2025-09-19</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3Dofje00540&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=h_491chuc00191/size=1280_720/" aria-label="金髪ガールズバー美女はオホ声全開ガチエロビッチ すず（22） のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/h_491chuc00191/h_491chuc00191pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span>
+        </button>
+        <div class="body">
+          <p class="title">37. 金髪ガールズバー美女はオホ声全開ガチエロビッチ すず（22）</p>
+          <p class="meta">2026-09-27</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3Dh_491chuc00191&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=13dsvr02026/size=1280_720/" aria-label="【VR】【8K】僕のもとに来た母性溢れる全肯定・介護士はリハビリ射精をしてくれる超献身的なサービス付き 東実果 のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/13dsvr02026/13dsvr02026pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span><span class="rank">人気67位</span>
+        </button>
+        <div class="body">
+          <p class="title">38. 【VR】【8K】僕のもとに来た母性溢れる全肯定・介護士はリハビリ射精をしてくれる超献身的なサービス付き 東実果</p>
+          <p class="meta">東実果 / 2026-10-01</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3D13dsvr02026&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=h_1825tssr06312/size=1280_720/" aria-label="JKの濡れ濡れま○こを奥まで触診！ のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/h_1825tssr06312/h_1825tssr06312pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span>
+        </button>
+        <div class="body">
+          <p class="title">39. JKの濡れ濡れま○こを奥まで触診！</p>
+          <p class="meta">2026-09-26</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3Dh_1825tssr06312&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=h_1489j9900794a/size=1280_720/" aria-label="【巨乳巨尻】母のセックスとオナニーを覗いてやっちまった俺 伊織涼子 のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/h_1489j9900794a/h_1489j9900794apl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span>
+        </button>
+        <div class="body">
+          <p class="title">40. 【巨乳巨尻】母のセックスとオナニーを覗いてやっちまった俺 伊織涼子</p>
+          <p class="meta">伊織涼子 / 2026-09-23</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3Dh_1489j9900794a&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=55t3800070/size=1280_720/" aria-label="下校途中の女子●生を狙った尾行押し込み3穴孕ませレ●プ のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/55t3800070/55t3800070pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span>
+        </button>
+        <div class="body">
+          <p class="title">41. 下校途中の女子●生を狙った尾行押し込み3穴孕ませレ●プ</p>
+          <p class="meta">音羽ゆうあ, 八森わか菜, 竹内まゆり / 2026-09-24</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3D55t3800070&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=h_1324skmj00794/size=1280_720/" aria-label="日本各地の温泉で見つけた素人女子の皆さん タオル一枚で男湯入ってみませんか？その日は観光予定だった一般旅行客全員絶頂レンチャンセックス豪華5時間SP のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/h_1324skmj00794/h_1324skmj00794pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span>
+        </button>
+        <div class="body">
+          <p class="title">42. 日本各地の温泉で見つけた素人女子の皆さん タオル一枚で男湯入ってみませんか？その日は観光予定だった一般旅行客全員絶頂レンチャンセックス豪華5時間SP</p>
+          <p class="meta">2026-09-25</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3Dh_1324skmj00794&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=mizd00370/size=1280_720/" aria-label="八木奈々 MOODYZ12時間BEST vol.3 また少し「大人」になった、3年目の「わたし」。 のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/mizd00370/mizd00370pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span><span class="rank">人気45位</span>
+        </button>
+        <div class="body">
+          <p class="title">43. 八木奈々 MOODYZ12時間BEST vol.3 また少し「大人」になった、3年目の「わたし」。</p>
+          <p class="meta">八木奈々 / 2024-02-16</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3Dmizd00370&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=1wo00027/size=1280_720/" aria-label="美尻開発エステ 逢沢みゆ のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/1wo00027/1wo00027pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span>
+        </button>
+        <div class="body">
+          <p class="title">44. 美尻開発エステ 逢沢みゆ</p>
+          <p class="meta">逢沢みゆ / 2026-10-01</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3D1wo00027&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=47jf00632/size=1280_720/" aria-label="蜜の時間 津野田薫 のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/47jf00632/47jf00632pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span>
+        </button>
+        <div class="body">
+          <p class="title">45. 蜜の時間 津野田薫</p>
+          <p class="meta">津野田薫 / 2026-09-30</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3D47jf00632&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=ymds00324/size=1280_720/" aria-label="裏風俗学園祭 ムチムチ天然マシュマロボディが夢のご奉仕！ちょっと天然ムチぽちゃバレー部員 春川ゆの のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/ymds00324/ymds00324pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span>
+        </button>
+        <div class="body">
+          <p class="title">46. 裏風俗学園祭 ムチムチ天然マシュマロボディが夢のご奉仕！ちょっと天然ムチぽちゃバレー部員 春川ゆの</p>
+          <p class="meta">春川ゆの / 2026-10-01</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3Dymds00324&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=h_1724v154i00001/size=1280_720/" aria-label="地方の訛りが抜けない素人娘に都会の●礼！屈託のない笑顔が一瞬で吹っ飛ぶ！ノリパコ生ハメSEX！ のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/h_1724v154i00001/h_1724v154i00001pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span>
+        </button>
+        <div class="body">
+          <p class="title">47. 地方の訛りが抜けない素人娘に都会の●礼！屈託のない笑顔が一瞬で吹っ飛ぶ！ノリパコ生ハメSEX！</p>
+          <p class="meta">2026-09-24</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3Dh_1724v154i00001&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=86axdvd00520/size=1280_720/" aria-label="妊婦食堂 お腹が大きくても遠慮なく激しく生で突いて欲しいです のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/86axdvd00520/86axdvd00520pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span>
+        </button>
+        <div class="body">
+          <p class="title">48. 妊婦食堂 お腹が大きくても遠慮なく激しく生で突いて欲しいです</p>
+          <p class="meta">2026-09-25</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3D86axdvd00520&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=h_1814nmsl00048/size=1280_720/" aria-label="性欲異常者からザーメンを一滴残らず搾取する底なし射精管理執行官 宮城りえ のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/h_1814nmsl00048/h_1814nmsl00048pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span>
+        </button>
+        <div class="body">
+          <p class="title">49. 性欲異常者からザーメンを一滴残らず搾取する底なし射精管理執行官 宮城りえ</p>
+          <p class="meta">宮城りえ / 2026-09-25</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3Dh_1814nmsl00048&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=h_1745hrsm00161/size=1280_720/" aria-label="一番有名な乳酸菌 訪問販売レディ狩り のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/h_1745hrsm00161/h_1745hrsm00161pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span>
+        </button>
+        <div class="body">
+          <p class="title">50. 一番有名な乳酸菌 訪問販売レディ狩り</p>
+          <p class="meta">2026-09-25</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3Dh_1745hrsm00161&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=ymds00318/size=1280_720/" aria-label="ヤリマンワゴンが行く！！ハプニング ア ゴーゴー！！天馬ゆいとリズの珍道中 天使の透明感と小悪魔な色気で大暴走！甘く激しく素人オタクを魅了しまくる誘惑モード全開ナンパ旅！ 魅了暴走編 のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/ymds00318/ymds00318pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span>
+        </button>
+        <div class="body">
+          <p class="title">51. ヤリマンワゴンが行く！！ハプニング ア ゴーゴー！！天馬ゆいとリズの珍道中 天使の透明感と小悪魔な色気で大暴走！甘く激しく素人オタクを魅了しまくる誘惑モード全開ナンパ旅！ 魅了暴走編</p>
+          <p class="meta">天馬ゆい / 2026-10-01</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3Dymds00318&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=h_1787mcsr09502/size=1280_720/" aria-label="のけ反り絶頂 鬼ピストン騎乗位 アナル丸見え・イキ狂い・イラマチオ 小峰ひなた のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/h_1787mcsr09502/h_1787mcsr09502pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span>
+        </button>
+        <div class="body">
+          <p class="title">52. のけ反り絶頂 鬼ピストン騎乗位 アナル丸見え・イキ狂い・イラマチオ 小峰ひなた</p>
+          <p class="meta">小峰ひなた / 2026-09-26</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3Dh_1787mcsr09502&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=nkkvr00197/size=1280_720/" aria-label="【VR】【8K超肉感特化】全身媚薬オイルまみれのオホ声絶頂痴女 新村あかり のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/nkkvr00197/nkkvr00197pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span>
+        </button>
+        <div class="body">
+          <p class="title">53. 【VR】【8K超肉感特化】全身媚薬オイルまみれのオホ声絶頂痴女 新村あかり</p>
+          <p class="meta">新村あかり / 2026-10-01</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3Dnkkvr00197&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=78hhh00426/size=1280_720/" aria-label="指名が取れない人気人妻マッサージ師は、家庭では良き妻、職場では男を瞬殺するゴッドハンド！！ 優しい笑顔と絶妙な距離感に常連客は骨抜き状態！！「こんな人妻に担当されたら帰れない…！！」 最初の10分で充分すぎるほど伝わる何度も通う理由…マジで一度味わったら忘… のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/78hhh00426/78hhh00426pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span>
+        </button>
+        <div class="body">
+          <p class="title">54. 指名が取れない人気人妻マッサージ師は、家庭では良き妻、職場では男を瞬殺するゴッドハンド！！ 優しい笑顔と絶妙な距離感に常連客は骨抜き状態！！「こんな人妻に担当されたら帰れない…！！」 最初の10分で充分すぎるほど伝わる何度も通う理由…マジで一度味わったら忘…</p>
+          <p class="meta">2026-09-28</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3D78hhh00426&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=36doks00691/size=1280_720/" aria-label="プリ尻J系の激イキ杭打ちピストンディルドオナニー （3） のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/36doks00691/36doks00691pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span>
+        </button>
+        <div class="body">
+          <p class="title">55. プリ尻J系の激イキ杭打ちピストンディルドオナニー （3）</p>
+          <p class="meta">善場まみ（茉城まみ）, 七美まみ, 山口由愛, 松山みなみ, 青坂あおい / 2026-10-01</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3D36doks00691&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=mngs00032/size=1280_720/" aria-label="【完全主観】お隣さんのギャルを助けたら冴えないボク（オタク）にベタ惚れ！1日10発オーバー甘々しまくり中出し生活 新井リマ のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/mngs00032/mngs00032pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span><span class="rank">人気154位</span>
+        </button>
+        <div class="body">
+          <p class="title">56. 【完全主観】お隣さんのギャルを助けたら冴えないボク（オタク）にベタ惚れ！1日10発オーバー甘々しまくり中出し生活 新井リマ</p>
+          <p class="meta">新井リマ / 2026-02-13</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3Dmngs00032&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=idbd00822/size=1280_720/" aria-label="希崎ジェシカ 最終章-The FINAL BEST- 48時間BOX のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/idbd00822/idbd00822pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span><span class="rank">人気46位</span>
+        </button>
+        <div class="body">
+          <p class="title">57. 希崎ジェシカ 最終章-The FINAL BEST- 48時間BOX</p>
+          <p class="meta">希崎ジェシカ / 2020-06-11</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3Didbd00822&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=1dldss00529/size=1280_720/" aria-label="電撃移籍 DAHLIA 小泉玖美41歳 人妻から女優へ。あの’本物人妻’がやってきたー。 のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/1dldss00529/1dldss00529pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span>
+        </button>
+        <div class="body">
+          <p class="title">58. 電撃移籍 DAHLIA 小泉玖美41歳 人妻から女優へ。あの’本物人妻’がやってきたー。</p>
+          <p class="meta">小泉玖美 / 2026-10-01</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3D1dldss00529&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=h_189tsm00075/size=1280_720/" aria-label="お小遣いのために親友をデカマラ黒人に売った鬼畜女子〇生 のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/h_189tsm00075/h_189tsm00075pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span>
+        </button>
+        <div class="body">
+          <p class="title">59. お小遣いのために親友をデカマラ黒人に売った鬼畜女子〇生</p>
+          <p class="meta">2026-10-01</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3Dh_189tsm00075&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=h_1825tssr06503/size=1280_720/" aria-label="素人美少女にぶっかけセックス のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/h_1825tssr06503/h_1825tssr06503pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span>
+        </button>
+        <div class="body">
+          <p class="title">60. 素人美少女にぶっかけセックス</p>
+          <p class="meta">2026-09-26</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3Dh_1825tssr06503&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=fxaih00085ai/size=1280_720/" aria-label="【AIリマスター版】 ヘンリー塚本監督作品 中高年の為に…若い娘を抱きたい 2 のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/fxaih00085ai/fxaih00085aipl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span>
+        </button>
+        <div class="body">
+          <p class="title">61. 【AIリマスター版】 ヘンリー塚本監督作品 中高年の為に…若い娘を抱きたい 2</p>
+          <p class="meta">菊川蓮, 加賀雅, 石田ゆりあ, 橘真央, 望月加奈（松沢真理） / 2026-09-25</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3Dfxaih00085ai&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=pxvr00492/size=1280_720/" aria-label="【VR】ズバッと鬼ヌキ！ワンコイン500 ハレンチすぎる委員長にチン棒起立！次から次へとナマ●コに発射！なベスト のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/pxvr00492/pxvr00492pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span>
+        </button>
+        <div class="body">
+          <p class="title">62. 【VR】ズバッと鬼ヌキ！ワンコイン500 ハレンチすぎる委員長にチン棒起立！次から次へとナマ●コに発射！なベスト</p>
+          <p class="meta">2026-09-23</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3Dpxvr00492&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=cosvr00047/size=1280_720/" aria-label="【VR】激カワふさ耳からセクシーバニー耳まで28タイトル！最強ケモ漬けの27時間19分！！ケモミミからしか抽出できないザーメンがあるんですよ～ のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/cosvr00047/cosvr00047pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span>
+        </button>
+        <div class="body">
+          <p class="title">63. 【VR】激カワふさ耳からセクシーバニー耳まで28タイトル！最強ケモ漬けの27時間19分！！ケモミミからしか抽出できないザーメンがあるんですよ～</p>
+          <p class="meta">2026-09-23</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3Dcosvr00047&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=1dldss00546/size=1280_720/" aria-label="市民プールそのうち出禁確定。 ’バグった’競泳水着の人妻が週3泳ぎにやってきますー。 叶愛 のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/1dldss00546/1dldss00546pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span><span class="rank">人気94位</span>
+        </button>
+        <div class="body">
+          <p class="title">64. 市民プールそのうち出禁確定。 ’バグった’競泳水着の人妻が週3泳ぎにやってきますー。 叶愛</p>
+          <p class="meta">叶愛 / 2026-10-01</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3D1dldss00546&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=h_189uta00126/size=1280_720/" aria-label="レズキス＆Wフェラ えげつないフェラチオでイカされる！ のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/h_189uta00126/h_189uta00126pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span>
+        </button>
+        <div class="body">
+          <p class="title">65. レズキス＆Wフェラ えげつないフェラチオでイカされる！</p>
+          <p class="meta">2026-10-01</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3Dh_189uta00126&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=parathd04566/size=1280_720/" aria-label="反り立つ若いチンポを挿入したい肉食系美熟女が集まるヌードデッサン教室（2） のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/parathd04566/parathd04566pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span>
+        </button>
+        <div class="body">
+          <p class="title">66. 反り立つ若いチンポを挿入したい肉食系美熟女が集まるヌードデッサン教室（2）</p>
+          <p class="meta">伊東沙蘭, 笹倉杏, ふじさき紫（藤咲紫） / 2026-10-01</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3Dparathd04566&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=ssis00753/size=1280_720/" aria-label="激イキ142回！痙攣4220回！イキ潮2150cc！幻の朝ドラヒロイン エロス覚醒 はじめての大・痙・攣スペシャル 歌野こころ のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/ssis00753/ssis00753pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span><span class="rank">人気152位</span>
+        </button>
+        <div class="body">
+          <p class="title">67. 激イキ142回！痙攣4220回！イキ潮2150cc！幻の朝ドラヒロイン エロス覚醒 はじめての大・痙・攣スペシャル 歌野こころ</p>
+          <p class="meta">歌野こころ / 2023-06-23</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3Dssis00753&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=h_1489j9900797a/size=1280_720/" aria-label="【巨乳黒乳首妻ハメ撮り】再会ご無沙汰な体が快楽を貪るセックス 美希さん（45歳） のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/h_1489j9900797a/h_1489j9900797apl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span>
+        </button>
+        <div class="body">
+          <p class="title">68. 【巨乳黒乳首妻ハメ撮り】再会ご無沙汰な体が快楽を貪るセックス 美希さん（45歳）</p>
+          <p class="meta">2026-09-27</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3Dh_1489j9900797a&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=h_127ysn00666/size=1280_720/" aria-label="湊波流にベロベロチュウチュウされながらずっーーと乳首を弄り回されてるのに抜け出せそうにない のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/h_127ysn00666/h_127ysn00666pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span>
+        </button>
+        <div class="body">
+          <p class="title">69. 湊波流にベロベロチュウチュウされながらずっーーと乳首を弄り回されてるのに抜け出せそうにない</p>
+          <p class="meta">湊波流 / 2026-09-27</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3Dh_127ysn00666&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=vrprd00216/size=1280_720/" aria-label="【VR】【8K】伝説の昭和グルメ風俗トップレス牛丼屋『乳の屋』が令和に降臨！W爆乳看板娘の超密着おもてなし中出しだくだく搾精はじめました黒咲華＋愛那あい のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/vrprd00216/vrprd00216pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span>
+        </button>
+        <div class="body">
+          <p class="title">70. 【VR】【8K】伝説の昭和グルメ風俗トップレス牛丼屋『乳の屋』が令和に降臨！W爆乳看板娘の超密着おもてなし中出しだくだく搾精はじめました黒咲華＋愛那あい</p>
+          <p class="meta">黒咲華, 愛那あい / 2026-10-01</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3Dvrprd00216&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=h_1596dg00557/size=1280_720/" aria-label="ヤリ廃棄られたオンナたち5名 ＃05 のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/h_1596dg00557/h_1596dg00557pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span>
+        </button>
+        <div class="body">
+          <p class="title">71. ヤリ廃棄られたオンナたち5名 ＃05</p>
+          <p class="meta">2026-09-30</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3Dh_1596dg00557&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=149rd01376/size=1280_720/" aria-label="熟妻 愛の情交 熟女好きの中年ドクターは訪問診療でボッキしてしまい… 夫と仲が悪くなっていく妻 その事を義理の兄に打ち明けると… のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/149rd01376/149rd01376pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span>
+        </button>
+        <div class="body">
+          <p class="title">72. 熟妻 愛の情交 熟女好きの中年ドクターは訪問診療でボッキしてしまい… 夫と仲が悪くなっていく妻 その事を義理の兄に打ち明けると…</p>
+          <p class="meta">秋元美織, 杉岡恵美子 / 2026-09-30</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3D149rd01376&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=h_1784fto00068/size=1280_720/" aria-label="閉経前ラストセックス！「最後に女にならせてください…」雌化した美熟女20人1221分！VOL.3 のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/h_1784fto00068/h_1784fto00068pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span>
+        </button>
+        <div class="body">
+          <p class="title">73. 閉経前ラストセックス！「最後に女にならせてください…」雌化した美熟女20人1221分！VOL.3</p>
+          <p class="meta">2026-09-29</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3Dh_1784fto00068&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=h_1534grmo00352/size=1280_720/" aria-label="●校生REC 隠れ童貞だったイケメン男子の生勃起チ●ポにJ系の性的好奇心が止まらない！放課後の部室でこっそりたっぷり2発射エッチ のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/h_1534grmo00352/h_1534grmo00352pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span>
+        </button>
+        <div class="body">
+          <p class="title">74. ●校生REC 隠れ童貞だったイケメン男子の生勃起チ●ポにJ系の性的好奇心が止まらない！放課後の部室でこっそりたっぷり2発射エッチ</p>
+          <p class="meta">八森わか菜 / 2026-09-24</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3Dh_1534grmo00352&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=h_1738vixbm00701/size=1280_720/" aria-label="【VIXEN】Vibes～青空の下で艶めく魅惑の白人美女たち～ Naomi ＆ Kenna のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/h_1738vixbm00701/h_1738vixbm00701pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span>
+        </button>
+        <div class="body">
+          <p class="title">75. 【VIXEN】Vibes～青空の下で艶めく魅惑の白人美女たち～ Naomi ＆ Kenna</p>
+          <p class="meta">ケンナ・ジェームズ, ナオミ・スワン / 2026-09-26</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3Dh_1738vixbm00701&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=1snsde00057/size=1280_720/" aria-label="コスプレハメ撮り シン・コスハメシリーズvol.057 祈山愛 のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/1snsde00057/1snsde00057pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span>
+        </button>
+        <div class="body">
+          <p class="title">76. コスプレハメ撮り シン・コスハメシリーズvol.057 祈山愛</p>
+          <p class="meta">祈山愛 / 2026-10-01</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3D1snsde00057&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=royd00353/size=1280_720/" aria-label="ボーイッシュで男友達みたいな女子は想像以上の大人下着とむっちむち爆乳ナイスボディ 七海那美 のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/royd00353/royd00353pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span>
+        </button>
+        <div class="body">
+          <p class="title">77. ボーイッシュで男友達みたいな女子は想像以上の大人下着とむっちむち爆乳ナイスボディ 七海那美</p>
+          <p class="meta">七海那美 / 2026-09-25</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3Droyd00353&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=1namh00077/size=1280_720/" aria-label="ノーカットなまなまクリニック 神膣対応ナース合計16発 倉木しおり のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/1namh00077/1namh00077pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span><span class="rank">人気42位</span>
+        </button>
+        <div class="body">
+          <p class="title">78. ノーカットなまなまクリニック 神膣対応ナース合計16発 倉木しおり</p>
+          <p class="meta">倉木しおり / 2026-09-28</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3D1namh00077&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=h_1472instv00734/size=1280_720/" aria-label="朝からまったりいちゃいちゃ現役グラドル彼女と寝起きで即ハメおはよう中出しSEX のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/h_1472instv00734/h_1472instv00734pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span>
+        </button>
+        <div class="body">
+          <p class="title">79. 朝からまったりいちゃいちゃ現役グラドル彼女と寝起きで即ハメおはよう中出しSEX</p>
+          <p class="meta">2026-09-23</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3Dh_1472instv00734&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=h_1825tssr06311/size=1280_720/" aria-label="美乳JKの上のお口も下のお口もチ○ポで塞ぐ3PSEX のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/h_1825tssr06311/h_1825tssr06311pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span>
+        </button>
+        <div class="body">
+          <p class="title">80. 美乳JKの上のお口も下のお口もチ○ポで塞ぐ3PSEX</p>
+          <p class="meta">2026-09-26</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3Dh_1825tssr06311&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=urvrsp00618/size=1280_720/" aria-label="【VR】【8K】自宅ではノーパンノーブラ先輩に我慢できず押し倒して強引正常位したら、欲求不満発情OLに萎える暇もなくチ○ポを刺激され続け仕返し強●連続射精させられた。 釈アリス のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/urvrsp00618/urvrsp00618pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span><span class="rank">人気69位</span>
+        </button>
+        <div class="body">
+          <p class="title">81. 【VR】【8K】自宅ではノーパンノーブラ先輩に我慢できず押し倒して強引正常位したら、欲求不満発情OLに萎える暇もなくチ○ポを刺激され続け仕返し強●連続射精させられた。 釈アリス</p>
+          <p class="meta">釈アリス / 2026-09-25</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3Durvrsp00618&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=pxvr00487/size=1280_720/" aria-label="【VR】10回発射するまで終わらない超凄プレイでザーメン搾取！止まらない連続攻撃でチ〇ポを襲うナマ中出し痴女風俗！ 笹倉彩【8K】 のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/pxvr00487/pxvr00487pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span>
+        </button>
+        <div class="body">
+          <p class="title">82. 【VR】10回発射するまで終わらない超凄プレイでザーメン搾取！止まらない連続攻撃でチ〇ポを襲うナマ中出し痴女風俗！ 笹倉彩【8K】</p>
+          <p class="meta">笹倉彩 / 2026-09-23</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3Dpxvr00487&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=h_1638emth00283/size=1280_720/" aria-label="最上級の人妻ナンパ COLLECTION7 まんまと中出しされた12人4時間 のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/h_1638emth00283/h_1638emth00283pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span>
+        </button>
+        <div class="body">
+          <p class="title">83. 最上級の人妻ナンパ COLLECTION7 まんまと中出しされた12人4時間</p>
+          <p class="meta">2026-09-25</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3Dh_1638emth00283&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=vrkm01777/size=1280_720/" aria-label="【VR】2016～2026KMPVR10周年記念珠玉の名作を大量収録！！2000分アニバーサリーBOX 8KVer. のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/vrkm01777/vrkm01777pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span><span class="rank">人気76位</span>
+        </button>
+        <div class="body">
+          <p class="title">84. 【VR】2016～2026KMPVR10周年記念珠玉の名作を大量収録！！2000分アニバーサリーBOX 8KVer.</p>
+          <p class="meta">AIKA, Nia（伊東める）, あべ藍, ちなみん, 森日向子, 沙月恵奈, 佐藤しお, 紺野ひかる, 黒川すみれ, 高島愛, 胡桃さくら, 戸川なみ, 斎藤あみり, 桜木美音, 七瀬シノン, 森沢かな（飯岡かなこ）, 新井リマ, 松本梨穂, 松本いちか, 松井日奈子, 小那海あや, 潤うるる, 秋元さちか, 月野かすみ, 月乃ルナ, 花柳杏奈, 夏夜える, 夏木りん, 横宮七海, 永井マリア, 羽月乃蒼, 一条みお, 伊織ひなの, 皆月ひかる, 幾田まち, 宮西ひかる, 芹沢なぎ, 桐香ゆうり, 響乃うた, 宮沢ちはる, 宮城りえ, 橘メアリー, 吉根ゆりあ, 結菜さき, 深月めい, 澪川はるか, 本真ゆり, 北岡果林, 望月つぼみ, 鳳カレン, 並木あいな, 武田怜香, 姫野らん, 姫咲はな, 柊ゆうき, 本田もも, 末広純, 鈴木真夕, 蘭々, 藍芽みずき, 有村のぞみ, 友田彩也香, 優梨まいな, 弥生みづき, 木下ひまり（花沢ひまり）, 明日見未来, 美波汐里, 美澄玲衣, 天馬ゆい, 椿りか, 通野未帆, 大槻ひびき, 倉木しおり, 倉多まお, 西野絵美, 星乃夏月, 水川潤, 田中ねね, 都月るいさ, 美咲かんな, 美園和花, 美衣みかな, 尾崎えりか, 白石もも, 波多野結衣, 徳永しおり, 透美かなた, 藤田こずえ, 水原みその / 2026-04-18</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3Dvrkm01777&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=1sods00083/size=1280_720/" aria-label="6年ぶりの総集編！より美しさを増した本庄鈴を堪能し尽くす20タイトル20SEX10時間スペシャル のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/1sods00083/1sods00083pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span><span class="rank">人気111位</span>
+        </button>
+        <div class="body">
+          <p class="title">85. 6年ぶりの総集編！より美しさを増した本庄鈴を堪能し尽くす20タイトル20SEX10時間スペシャル</p>
+          <p class="meta">本庄鈴 / 2026-01-06</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3D1sods00083&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=miaa00889/size=1280_720/" aria-label="ピンサロ行くほどフェラ好きなの…？ キミ（彼氏）が2度と風俗行けないように10回転分のすっごいフェラでヌキまくってヤルからな！ 黒川すみれ のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/miaa00889/miaa00889pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span><span class="rank">人気174位</span>
+        </button>
+        <div class="body">
+          <p class="title">86. ピンサロ行くほどフェラ好きなの…？ キミ（彼氏）が2度と風俗行けないように10回転分のすっごいフェラでヌキまくってヤルからな！ 黒川すみれ</p>
+          <p class="meta">黒川すみれ / 2023-06-30</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3Dmiaa00889&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=h_1454bdsr51405/size=1280_720/" aria-label="仕事のデキる女はSEXもデキる Yuki ＆ Ran のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/h_1454bdsr51405/h_1454bdsr51405pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span>
+        </button>
+        <div class="body">
+          <p class="title">87. 仕事のデキる女はSEXもデキる Yuki ＆ Ran</p>
+          <p class="meta">2026-09-26</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3Dh_1454bdsr51405&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=1dldss00559/size=1280_720/" aria-label="’多分、娘が好きであろう’娘の家庭●師と週3日、自宅不貞行為に及んでいますー。 角奈保 のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/1dldss00559/1dldss00559pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span>
+        </button>
+        <div class="body">
+          <p class="title">88. ’多分、娘が好きであろう’娘の家庭●師と週3日、自宅不貞行為に及んでいますー。 角奈保</p>
+          <p class="meta">角奈保 / 2026-10-01</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3D1dldss00559&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=mide00902/size=1280_720/" aria-label="バキュームフェラ大好きお姉さんのディープスロート・たっぷり射精・追撃おしゃぶり 高橋しょう子 のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/mide00902/mide00902pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span><span class="rank">人気141位</span>
+        </button>
+        <div class="body">
+          <p class="title">89. バキュームフェラ大好きお姉さんのディープスロート・たっぷり射精・追撃おしゃぶり 高橋しょう子</p>
+          <p class="meta">高橋しょう子 / 2021-03-26</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3Dmide00902&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=h_460mbma00317/size=1280_720/" aria-label="マニア限定 歪んだ性の実態 現代社会において、いまだ実在する驚愕の事実 哀しき娘たち10名収録 のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/h_460mbma00317/h_460mbma00317pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span>
+        </button>
+        <div class="body">
+          <p class="title">90. マニア限定 歪んだ性の実態 現代社会において、いまだ実在する驚愕の事実 哀しき娘たち10名収録</p>
+          <p class="meta">2026-09-25</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3Dh_460mbma00317&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=h_1596dg00568/size=1280_720/" aria-label="女湯潜入 入口に『清掃中』の看板置いたら湯あがり全裸ギャルに中出しできました！ CASE04 のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/h_1596dg00568/h_1596dg00568pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span>
+        </button>
+        <div class="body">
+          <p class="title">91. 女湯潜入 入口に『清掃中』の看板置いたら湯あがり全裸ギャルに中出しできました！ CASE04</p>
+          <p class="meta">2026-09-30</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3Dh_1596dg00568&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=h_1784fto00066/size=1280_720/" aria-label="爆乳・美尻・クビレ・モデル体型…完璧すぎるカラダをむしゃぶり尽くす！エロすぎる極上最高級神ボディ絶頂コレクション 265分 4名 のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/h_1784fto00066/h_1784fto00066pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span>
+        </button>
+        <div class="body">
+          <p class="title">92. 爆乳・美尻・クビレ・モデル体型…完璧すぎるカラダをむしゃぶり尽くす！エロすぎる極上最高級神ボディ絶頂コレクション 265分 4名</p>
+          <p class="meta">2026-09-30</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3Dh_1784fto00066&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=h_1825tssr06402/size=1280_720/" aria-label="拘束されたJKが男たちのおもちゃにされる。嫌なのに電マの刺激に耐えきれず…！ のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/h_1825tssr06402/h_1825tssr06402pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span>
+        </button>
+        <div class="body">
+          <p class="title">93. 拘束されたJKが男たちのおもちゃにされる。嫌なのに電マの刺激に耐えきれず…！</p>
+          <p class="meta">2026-09-26</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3Dh_1825tssr06402&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=crvr00430/size=1280_720/" aria-label="【VR】【8KVR】「知ってた？おとうとくんにはね…拒否権も決定権もないの」とある日の午後…ボクは姉の友人にキスで心を奪われた 月野江すい のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/crvr00430/crvr00430pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span>
+        </button>
+        <div class="body">
+          <p class="title">94. 【VR】【8KVR】「知ってた？おとうとくんにはね…拒否権も決定権もないの」とある日の午後…ボクは姉の友人にキスで心を奪われた 月野江すい</p>
+          <p class="meta">月野江すい / 2026-09-23</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3Dcrvr00430&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=jums00136/size=1280_720/" aria-label="種付けザーメン注ぎまくってこのまま孕ませてやろうぜ…！！ 旦那の身代わりになった美人妻をハメ倒し中出しレ●プ113発720分 のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/jums00136/jums00136pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span><span class="rank">人気191位</span>
+        </button>
+        <div class="body">
+          <p class="title">95. 種付けザーメン注ぎまくってこのまま孕ませてやろうぜ…！！ 旦那の身代わりになった美人妻をハメ倒し中出しレ●プ113発720分</p>
+          <p class="meta">末広純, 椿りか, 天川そら, 篠田ゆう, 向井藍, 藤かんな, 木村玲衣, 清巳れの, 森沢かな（飯岡かなこ）, 今井栞菜, 上羽絢, 前田美波, 渡辺まお, 神宮寺ナオ, 明里つむぎ, 葉山さゆり, 木下凛々子, 大島優香, 沖宮那美, 一乃あおい, 市来まひろ, 風間ゆみ, 舞原聖, 小早川怜子, 北条麻妃, 小谷舞花, 広瀬ゆり, 白石茉莉奈, 栗山莉緒, 庵ひめか, 愛弓りょう, 吉澤友貴, 小花のん, 橘京花, 高坂ニナ, 椎名ゆな, 水戸かな, 辻井ほのか, 叶愛 / 2025-09-26</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3Djums00136&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=snis00940/size=1280_720/" aria-label="国民的アイドルは僕だけのローションぬるぬるご奉仕メイド 三上悠亜 のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/snis00940/snis00940pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span><span class="rank">人気138位</span>
+        </button>
+        <div class="body">
+          <p class="title">96. 国民的アイドルは僕だけのローションぬるぬるご奉仕メイド 三上悠亜</p>
+          <p class="meta">三上悠亜 / 2017-06-17</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3Dsnis00940&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=5534id00025/size=1280_720/" aria-label="通学中の電車で痴●集団に弄ばれ堕とされる巨乳女子●生中出し性交4時間 のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/5534id00025/5534id00025pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span>
+        </button>
+        <div class="body">
+          <p class="title">97. 通学中の電車で痴●集団に弄ばれ堕とされる巨乳女子●生中出し性交4時間</p>
+          <p class="meta">2026-09-25</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3D5534id00025&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=pred00356/size=1280_720/" aria-label="プレミアム専属決定 「もうイッてるってばぁ！」美乳首ビン！アクメ中に爆走ピストン カメラ目線でイクイク中出し3本番 楪カレン のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/pred00356/pred00356pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span><span class="rank">人気92位</span>
+        </button>
+        <div class="body">
+          <p class="title">98. プレミアム専属決定 「もうイッてるってばぁ！」美乳首ビン！アクメ中に爆走ピストン カメラ目線でイクイク中出し3本番 楪カレン</p>
+          <p class="meta">楪カレン / 2021-11-12</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3Dpred00356&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=h_113h113gl00004ai/size=1280_720/" aria-label="【AIリマスター版】素人ギャル生中出し NAO のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/h_113h113gl00004ai/h_113h113gl00004aipl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span>
+        </button>
+        <div class="body">
+          <p class="title">99. 【AIリマスター版】素人ギャル生中出し NAO</p>
+          <p class="meta">2026-09-23</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3Dh_113h113gl00004ai&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
+      <li class="card">
+        <button class="thumb" type="button" data-player="https://www.dmm.co.jp/litevideo/-/part/=/affi_id=NUBh0jCpE9kc-001/cid=h_1787eiki04102/size=1280_720/" aria-label="甘え上手な人妻に気に入られたおじさん、おじちん棒でオナニーされるほど欲求不満のマ○コにたぷたぷ中出し 南梨央奈 のサンプル動画を再生">
+          <img src="https://pics.dmm.co.jp/digital/video/h_1787eiki04102/h_1787eiki04102pl.jpg" alt="" loading="lazy" decoding="async">
+          <span class="play" aria-hidden="true"></span>
+        </button>
+        <div class="body">
+          <p class="title">100. 甘え上手な人妻に気に入られたおじさん、おじちん棒でオナニーされるほど欲求不満のマ○コにたぷたぷ中出し 南梨央奈</p>
+          <p class="meta">南梨央奈 / 2026-09-26</p>
+          <a class="cta" href="https://al.fanza.co.jp/?lurl=https%3A%2F%2Fvideo.dmm.co.jp%2Fav%2Fcontent%2F%3Fid%3Dh_1787eiki04102&amp;af_id=NUBh0jCpE9kc-990&amp;ch=api" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
+        </div>
+      </li>
   </ul>
-  <!-- UPDATES:END -->
-  </section>
-
 </main>
-
-<footer class="foot">
-  <div class="wrap">
-    <nav class="foot-links" aria-label="サイト情報">
-      <a href="/policy/">サイトポリシー</a>
-    </nav>
-    <p class="foot-pr">当サイトはアフィリエイト広告（PR）を利用しています。</p>
-    <p class="foot-copy">&copy; 三昧タイム</p>
-  </div>
-</footer>
-
-</template>
-
-<script src="/assets/js/age-gate.js"></script>
-<script src="/assets/js/site.js" defer></script>
+<footer>当サイトはアフィリエイトプログラムを利用しています。 ・ Powered by FANZA Webサービス</footer>
+<script>
+  (function () {
+    var age = document.getElementById('age');
+    var ok = false;
+    try { ok = localStorage.getItem('age_ok') === '1'; } catch (e) {}
+    if (!ok) age.classList.add('show');
+    age.querySelector('.yes').addEventListener('click', function () {
+      try { localStorage.setItem('age_ok', '1'); } catch (e) {}
+      age.classList.remove('show');
+    });
+    document.querySelector('.grid').addEventListener('click', function (ev) {
+      var btn = ev.target.closest('button.thumb');
+      if (!btn) return;
+      var box = document.createElement('div');
+      box.className = 'thumb';
+      var f = document.createElement('iframe');
+      f.src = btn.dataset.player;
+      f.title = btn.getAttribute('aria-label');
+      f.allow = 'autoplay; fullscreen; encrypted-media; picture-in-picture';
+      f.allowFullscreen = true;
+      f.setAttribute('scrolling', 'no');
+      f.referrerPolicy = 'no-referrer-when-downgrade';
+      box.appendChild(f);
+      btn.replaceWith(box);
+    });
+  })();
+</script>
 </body>
 </html>

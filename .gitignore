@@ -1,0 +1,5 @@
+.env
+# DMM API ID や X 投稿データを含むため公開リポジトリには入れない
+*.xlsx
+download_log.txt
+__pycache__/

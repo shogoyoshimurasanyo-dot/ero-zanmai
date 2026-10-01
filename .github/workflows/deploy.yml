@@ -1,23 +1,10 @@
-# main に push されたら public/ をレンタルサーバへ FTP(S) でアップロードする。
-# 必要な Secrets（GitHub → Settings → Secrets and variables → Actions）:
-#   FTP_SERVER      例: sv12345.xserver.jp
-#   FTP_USERNAME    FTP アカウント
-#   FTP_PASSWORD    FTP パスワード
-#   FTP_SERVER_DIR  例: /example.com/public_html/   （末尾の / 必須）
-name: Deploy to rental server
+name: Deploy to FTP
 
 on:
   push:
     branches: [main]
-    paths:
-      - "public/**"
-      - ".github/workflows/deploy.yml"
+    paths: ["public/**"]
   workflow_dispatch:
-    inputs:
-      upload_top_index:
-        description: "トップの index.html も上書きする（毎朝の動画入れ替えの結果が消えるので、見た目を直したときだけ）"
-        type: boolean
-        default: false
 
 concurrency:
   group: deploy
@@ -29,40 +16,25 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Rebuild update index
-        run: python3 scripts/build_index.py
+      - name: Check FTP secrets
+        id: check
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+        run: |
+          if [ -z "$FTP_SERVER" ]; then
+            echo "::warning::FTP secrets are not set. Skipping deploy."
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
 
-      - name: Upload via FTP
+      - name: Upload public/ via FTP
+        if: steps.check.outputs.ready == 'true'
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          protocol: ftps          # 非対応のサーバなら ftp に変更
+          protocol: ftps
           local-dir: ./public/
           server-dir: ${{ secrets.FTP_SERVER_DIR }}
-          # 差分だけ送る（サーバ側に .ftp-deploy-sync-state.json が作られる）
-          exclude: |
-            **/.git*
-            **/.git*/**
-            **/_template.html
-            index.html
-            !*/**/index.html
-          # ↑ トップの index.html だけは PC の tools/zanmai-daily が毎朝サーバ上で直接更新するため、
-          #   ここから上書きしない（上書きすると入れ替えた動画が消える）。
-          #   exclude はファイル名だけでも一致するので、2 行目でサブフォルダの index.html を除外対象から戻している。
-
-      # 手動実行で upload_top_index にチェックしたときだけ、トップの index.html を上書きする
-      # （%2F で FTP_SERVER_DIR を絶対パスとして扱う＝上の FTP-Deploy-Action と同じ場所）
-      - name: Upload top index.html
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.upload_top_index }}
-        env:
-          FTP_SERVER: ${{ secrets.FTP_SERVER }}
-          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
-          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
-          FTP_SERVER_DIR: ${{ secrets.FTP_SERVER_DIR }}
-        run: |
-          curl --fail --silent --show-error --ssl-reqd \
-            --user "$FTP_USERNAME:$FTP_PASSWORD" \
-            -T public/index.html "ftp://$FTP_SERVER/%2F${FTP_SERVER_DIR#/}"
-          echo "index.html をアップロードしました"
