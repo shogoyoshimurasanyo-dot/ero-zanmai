@@ -11,7 +11,7 @@ Get-ChildItem -Path $Repo -Filter 'X_post_sheet_*.xlsx' |
 python scripts/build.py
 if ($LASTEXITCODE -ne 0) { throw "build.py failed ($LASTEXITCODE)" }
 
-git add public static scripts
+git add public
 git diff --cached --quiet
 if ($LASTEXITCODE -eq 0) { Write-Output 'no changes'; exit 0 }
 

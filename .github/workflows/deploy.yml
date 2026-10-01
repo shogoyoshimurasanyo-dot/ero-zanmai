@@ -29,7 +29,25 @@ jobs:
           fi
 
       - name: Upload public/ via FTP
+        id: ftp
         if: steps.check.outputs.ready == 'true'
+        continue-on-error: true
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps
+          local-dir: ./public/
+          server-dir: ${{ secrets.FTP_SERVER_DIR }}
+
+      # サーバへの接続がたまにタイムアウトするので 1 回だけやり直す
+      - name: Wait before retry
+        if: steps.ftp.outcome == 'failure'
+        run: sleep 60
+
+      - name: Retry upload via FTP
+        if: steps.ftp.outcome == 'failure'
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ${{ secrets.FTP_SERVER }}
