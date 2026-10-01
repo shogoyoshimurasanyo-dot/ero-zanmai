@@ -1,12 +1,20 @@
 #!/usr/bin/env python3
 """
-最新の X_post_sheet_YYYYMMDD.xlsx（シート「API」）から 100 作品を選び、
-public/index.html と public/videos.json を作る。
+最新の X_post_sheet_YYYYMMDD.xlsx から、プラットフォーム別のページを作る。
 
-選び方:
-  1. 発売日が今日以前の作品だけを対象にする（未発売はサンプル動画がないため）
-  2. 人気順位がある作品を、順位の高い順に最大 KEEP_RANKED 件
-  3. 残りの枠を、ほかの作品から日付をシードにランダムで埋める（毎日入れ替わる）
+  public/index.html            → fanza/ へ転送（#v-xxx も引き継ぐ）
+  public/<platform>/index.html  動画ブロックの一覧（各ブロックに id="v-<ID>"）
+  public/<platform>/catalog.json これまで掲載したブロックの HTML（日替わりで消えた
+                                 ブロックへの SNS リンクも開けるようにするため）
+  public/assets/                static/ をコピー
+
+SNS 用リンク: https://<サイト>/<platform>/#v-<ID>
+
+プラットフォームごとのデータ元:
+  fanza  … シート「API」。発売済みの作品から人気順位上位 KEEP_RANKED 件＋日替わりランダムで COUNT 件
+  mgs    … シート「sheet」の本文にある MGS ウィジェット ＋ シート「MGS」（あれば）
+  myfans … シート「sheet」の本文にある myfans リンク ＋ シート「myfans」（あれば）
+  シート「MGS」「myfans」の列: ID / タイトル / URL / 画像URL / 埋め込みHTML / 説明
 
 使い方:
   python scripts/build.py              リポジトリ直下の最新 xlsx を使う
@@ -16,8 +24,11 @@ import datetime as dt
 import html
 import json
 import random
+import re
+import shutil
 import sys
 from pathlib import Path
+from urllib.parse import parse_qs, urlparse
 
 import openpyxl
 
@@ -26,15 +37,27 @@ OUT = ROOT / "public"
 JST = dt.timezone(dt.timedelta(hours=9))
 TODAY = dt.datetime.now(JST).date()
 
-SHEET = "API"
+SITE_TITLE = "エロ三昧タイム"
 COUNT = 100
 KEEP_RANKED = 30
-SITE_TITLE = "エロ三昧タイム"
-# サンプル動画プレイヤー（litevideo）用のアフィリエイト ID
+CATALOG_MAX = 3000  # catalog.json に残すブロック数の上限（最後に掲載した日が新しい順）
+# FANZA サンプル動画プレイヤー（litevideo）用のアフィリエイト ID
 PLAYER_AFFI_ID = "NUBh0jCpE9kc-001"
 PLAYER_URL = ("https://www.dmm.co.jp/litevideo/-/part/=/affi_id={affi}"
               "/cid={cid}/size=1280_720/")
 
+PLATFORMS = [
+    {"key": "fanza", "name": "FANZA", "cta": "FANZAで詳細を見る"},
+    {"key": "mgs", "name": "MGS", "cta": "MGS動画で詳細を見る"},
+    {"key": "myfans", "name": "myfans", "cta": "myfansで見る"},
+]
+
+MGS_RE = re.compile(r'<div class="[^"]*"></div><script[^>]*mgs_Widget_affiliate[^>]*></script>')
+MYFANS_RE = re.compile(r"https://link\.affiliate\.myfans\.jp/r/(\w+)")
+URL_RE = re.compile(r"https?://\S+")
+
+
+# ---------- xlsx ----------
 
 def find_xlsx(argv):
     if len(argv) > 1:
@@ -45,6 +68,23 @@ def find_xlsx(argv):
     return files[-1]
 
 
+def sheet_rows(wb, name):
+    """シートを {見出し: 値} の dict のリストで返す。シートがなければ空。"""
+    if name not in wb.sheetnames:
+        return []
+    rows = wb[name].iter_rows(values_only=True)
+    header = [str(h).strip() if h is not None else "" for h in next(rows, [])]
+    out = []
+    for row in rows:
+        d = {}
+        for h, v in zip(header, row):
+            if h:
+                d[h] = v.strip() if isinstance(v, str) else v
+        if any(v not in (None, "") for v in d.values()):
+            out.append(d)
+    return out
+
+
 def as_date(v):
     if isinstance(v, dt.datetime):
         return v.date()
@@ -53,42 +93,36 @@ def as_date(v):
     return None
 
 
-def read_items(path):
-    wb = openpyxl.load_workbook(path, read_only=True, data_only=True)
-    rows = wb[SHEET].iter_rows(values_only=True)
-    header = [str(h).strip() if h is not None else "" for h in next(rows)]
-    col = {name: i for i, name in enumerate(header) if name}
+def safe_id(s):
+    return re.sub(r"[^0-9A-Za-z_-]", "-", str(s)).strip("-").lower()
 
-    def get(row, name):
-        i = col.get(name)
-        v = row[i] if i is not None and i < len(row) else None
-        return v.strip() if isinstance(v, str) else v
 
+def item(id, title, url, **kw):
+    base = {"id": safe_id(id), "title": title or "", "url": url or "", "image": "",
+            "player": "", "embed": "", "desc": "", "meta": "", "rank": None}
+    base.update(kw)
+    return base
+
+
+# ---------- プラットフォーム別の読み込み ----------
+
+def load_fanza(wb):
     items, seen = [], set()
-    for row in rows:
-        cid = get(row, "content_id")
-        if not cid or cid in seen:
-            continue
-        released = as_date(get(row, "発売日"))
-        if released is None or released > TODAY:
+    for r in sheet_rows(wb, "API"):
+        cid = r.get("content_id")
+        released = as_date(r.get("発売日"))
+        if not cid or cid in seen or released is None or released > TODAY:
             continue
         seen.add(cid)
-        rank = get(row, "人気順位")
-        items.append({
-            "cid": cid,
-            "title": get(row, "タイトル") or "",
-            "url": get(row, "アフィリエイトURL") or get(row, "通常URL") or "",
-            "image": get(row, "画像URL(大)") or get(row, "画像URL(リスト)") or "",
-            "actress": get(row, "女優") or "",
-            "maker": get(row, "メーカー") or "",
-            "price": get(row, "価格") or "",
-            "released": released.isoformat(),
-            "rank": int(rank) if isinstance(rank, (int, float)) else None,
-        })
-    return items
-
-
-def choose(items):
+        rank = r.get("人気順位")
+        items.append(item(
+            cid, r.get("タイトル"),
+            r.get("アフィリエイトURL") or r.get("通常URL"),
+            image=r.get("画像URL(大)") or r.get("画像URL(リスト)") or "",
+            player=PLAYER_URL.format(affi=PLAYER_AFFI_ID, cid=cid),
+            meta=" / ".join(str(x) for x in (r.get("女優"), released.isoformat()) if x),
+            rank=int(rank) if isinstance(rank, (int, float)) else None,
+        ))
     ranked = sorted((i for i in items if i["rank"]), key=lambda i: i["rank"])
     picked = ranked[:KEEP_RANKED]
     rest = [i for i in items if i not in picked]
@@ -97,45 +131,177 @@ def choose(items):
     return picked
 
 
-def render_card(n, item):
+def post_texts(wb):
+    """シート「sheet」（X 投稿）の本文を新しい投稿日順に返す。"""
+    rows = [r for r in sheet_rows(wb, "sheet") if isinstance(r.get("本文"), str)]
+    rows.sort(key=lambda r: as_date(r.get("投稿日")) or dt.date.min, reverse=True)
+    return [(r["本文"].replace('""', '"'), as_date(r.get("投稿日"))) for r in rows]
+
+
+def caption(text):
+    """投稿本文から URL・タグ・ウィジェットを除いた見出しと説明を作る。"""
+    text = MGS_RE.sub("", text)
+    text = URL_RE.sub("", text)
+    lines = [l.strip() for l in text.splitlines() if l.strip()]
+    if not lines:
+        return "", ""
+    return lines[0], " ".join(lines[1:])
+
+
+def load_extra_sheet(wb, name):
+    out = []
+    for r in sheet_rows(wb, name):
+        id_ = r.get("ID") or r.get("URL")
+        if not id_:
+            continue
+        out.append(item(id_, r.get("タイトル"), r.get("URL"),
+                        image=r.get("画像URL") or "", embed=r.get("埋め込みHTML") or "",
+                        desc=r.get("説明") or ""))
+    return out
+
+
+def load_mgs(wb):
+    items = load_extra_sheet(wb, "MGS")
+    for text, posted in post_texts(wb):
+        m = MGS_RE.search(text)
+        if not m:
+            continue
+        src = re.search(r'src="([^"]+)"', m.group(0)).group(1)
+        q = parse_qs(urlparse(html.unescape(src)).query)
+        pid = (q.get("p") or [src])[0]
+        title = (q.get("s") or [""])[0]
+        head, desc = caption(text)
+        items.append(item(
+            pid, title or head, f"https://www.mgstage.com/product/product_detail/{pid}/",
+            embed=m.group(0), desc=head if title else desc,
+            meta=posted.isoformat() if posted else ""))
+    return dedupe(items)
+
+
+def load_myfans(wb):
+    items = load_extra_sheet(wb, "myfans")
+    for text, posted in post_texts(wb):
+        m = MYFANS_RE.search(text)
+        if not m:
+            continue
+        head, desc = caption(text)
+        items.append(item(m.group(1), head, m.group(0), desc=desc,
+                          meta=posted.isoformat() if posted else ""))
+    return dedupe(items)
+
+
+def dedupe(items):
+    seen, out = set(), []
+    for i in items:
+        if i["id"] and i["id"] not in seen:
+            seen.add(i["id"])
+            out.append(i)
+    return out
+
+
+LOADERS = {"fanza": load_fanza, "mgs": load_mgs, "myfans": load_myfans}
+
+
+# ---------- HTML ----------
+
+def render_media(it, platform):
     e = html.escape
-    player = PLAYER_URL.format(affi=PLAYER_AFFI_ID, cid=item["cid"])
-    meta = " / ".join(x for x in (item["actress"], item["released"]) if x)
-    badge = f'<span class="rank">人気{item["rank"]}位</span>' if item["rank"] else ""
-    return f"""      <li class="card">
-        <button class="thumb" type="button" data-player="{e(player)}" aria-label="{e(item['title'])} のサンプル動画を再生">
-          <img src="{e(item['image'])}" alt="" loading="lazy" decoding="async">
-          <span class="play" aria-hidden="true"></span>{badge}
-        </button>
-        <div class="body">
-          <p class="title">{n}. {e(item['title'])}</p>
-          <p class="meta">{e(meta)}</p>
-          <a class="cta" href="{e(item['url'])}" target="_blank" rel="sponsored nofollow noopener">FANZAで詳細を見る</a>
-        </div>
-      </li>"""
+    if it["player"]:
+        badge = f'<span class="rank">人気{it["rank"]}位</span>' if it["rank"] else ""
+        return (f'<button class="media" type="button" data-player="{e(it["player"])}" '
+                f'aria-label="{e(it["title"])} のサンプル動画を再生">'
+                f'<img src="{e(it["image"])}" alt="" loading="lazy" decoding="async">'
+                f'<span class="play" aria-hidden="true"></span>{badge}</button>')
+    if it["embed"]:
+        # ウィジェットはページ内に 1 つしか置けないものがあるので iframe で分離する
+        doc = f'<!doctype html><meta charset="utf-8"><style>body{{margin:0}}</style>{it["embed"]}'
+        return (f'<iframe class="media embed" srcdoc="{e(doc)}" loading="lazy" '
+                f'title="{e(it["title"])}"></iframe>')
+    if it["image"]:
+        return (f'<a class="media" href="{e(it["url"])}" target="_blank" rel="sponsored nofollow noopener">'
+                f'<img src="{e(it["image"])}" alt="" loading="lazy" decoding="async"></a>')
+    return (f'<a class="media blank" href="{e(it["url"])}" target="_blank" rel="sponsored nofollow noopener">'
+            f'<span>{e(platform["name"])}</span></a>')
 
 
-def render_page(picked):
-    cards = "\n".join(render_card(n, i) for n, i in enumerate(picked, 1))
+def render_card(it, platform):
+    e = html.escape
+    desc = f'<p class="desc">{e(it["desc"])}</p>' if it["desc"] else ""
+    meta = f'<p class="meta">{e(it["meta"])}</p>' if it["meta"] else ""
+    return f"""<li class="card" id="v-{it['id']}">
+  {render_media(it, platform)}
+  <div class="body">
+    <p class="title">{e(it['title'])}</p>{desc}{meta}
+    <div class="actions">
+      <a class="cta" href="{e(it['url'])}" target="_blank" rel="sponsored nofollow noopener">{e(platform['cta'])}</a>
+      <button class="copy" type="button" data-id="v-{it['id']}">リンクをコピー</button>
+    </div>
+  </div>
+</li>"""
+
+
+def render_menu(current):
+    links = "\n".join(
+        f'        <li><a href="../{p["key"]}/"{" aria-current=\"page\"" if p["key"] == current["key"] else ""}>{html.escape(p["name"])}</a></li>'
+        for p in PLATFORMS)
+    return f"""<details class="menu">
+      <summary>{html.escape(current["name"])}</summary>
+      <ul>
+{links}
+      </ul>
+    </details>"""
+
+
+def render_page(platform, items):
+    cards = "\n".join(render_card(i, platform) for i in items)
+    if not cards:
+        cards = '<li class="empty">準備中です。</li>'
     template = (ROOT / "scripts" / "template.html").read_text(encoding="utf-8")
     return (template
             .replace("{{SITE_TITLE}}", html.escape(SITE_TITLE))
+            .replace("{{PLATFORM}}", html.escape(platform["name"]))
+            .replace("{{MENU}}", render_menu(platform))
             .replace("{{DATE}}", f"{TODAY.year}年{TODAY.month}月{TODAY.day}日")
-            .replace("{{COUNT}}", str(len(picked)))
+            .replace("{{COUNT}}", str(len(items)))
             .replace("{{CARDS}}", cards))
+
+
+def update_catalog(path, platform, items):
+    """これまで掲載したブロックを貯める。{id: {"html": ..., "last": "YYYY-MM-DD"}}"""
+    try:
+        catalog = json.loads(path.read_text(encoding="utf-8"))
+    except (FileNotFoundError, ValueError):
+        catalog = {}
+    for it in items:
+        catalog[f"v-{it['id']}"] = {"html": render_card(it, platform), "last": TODAY.isoformat()}
+    keep = sorted(catalog.items(), key=lambda kv: kv[1]["last"], reverse=True)[:CATALOG_MAX]
+    path.write_text(json.dumps(dict(sorted(keep)), ensure_ascii=False, separators=(",", ":")),
+                    encoding="utf-8")
+
+
+REDIRECT = """<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="robots" content="noindex">
+<title>{title}</title>
+<script>location.replace('fanza/' + location.hash);</script>
+<meta http-equiv="refresh" content="0; url=fanza/">
+</head><body><a href="fanza/">FANZA の動画一覧へ</a></body></html>
+"""
 
 
 def main():
     path = find_xlsx(sys.argv)
-    items = read_items(path)
-    picked = choose(items)
+    wb = openpyxl.load_workbook(path, read_only=True, data_only=True)
     OUT.mkdir(exist_ok=True)
-    (OUT / "index.html").write_text(render_page(picked), encoding="utf-8")
-    (OUT / "videos.json").write_text(
-        json.dumps({"date": TODAY.isoformat(), "items": picked}, ensure_ascii=False, indent=1),
-        encoding="utf-8")
-    # ログ（cp932）で化けないよう ASCII で出す
-    print(f"{path.name}: picked {len(picked)} of {len(items)} released items")
+    shutil.copytree(ROOT / "static", OUT / "assets", dirs_exist_ok=True)
+    (OUT / "index.html").write_text(REDIRECT.format(title=html.escape(SITE_TITLE)), encoding="utf-8")
+    for p in PLATFORMS:
+        items = LOADERS[p["key"]](wb)
+        d = OUT / p["key"]
+        d.mkdir(exist_ok=True)
+        (d / "index.html").write_text(render_page(p, items), encoding="utf-8")
+        update_catalog(d / "catalog.json", p, items)
+        # ログ（cp932）で化けないよう ASCII で出す
+        print(f"{path.name}: {p['key']} {len(items)} items")
 
 
 if __name__ == "__main__":

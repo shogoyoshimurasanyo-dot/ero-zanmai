@@ -1,30 +1,56 @@
 # ero-zanmai-time
 
-FANZA の作品を毎日 100 本入れ替えて表示する静的サイト。
+FANZA / MGS / myfans の動画ブロックをプラットフォーム別に並べる静的サイト。FANZA は毎日 100 本入れ替える。
 
 ```
 [毎朝 7:00 タスクスケジューラ] ..\download_sheet.ps1
   1. GAS からスプレッドシートを xlsx でダウンロード（このフォルダに保存）
   2. scripts/publish.ps1
-     - scripts/build.py がシート「API」から 100 本を選び public/ を生成
+     - scripts/build.py が public/ を生成
      - public/ に変更があれば commit して GitHub に push
 [GitHub Actions] .github/workflows/deploy.yml
   3. public/ を FTP でサーバの FTP_SERVER_DIR にアップロード
 ```
 
-## 100 本の選び方（scripts/build.py）
+## ページ構成
 
-- 発売日が今日以前の作品だけ（未発売はサンプル動画がない）
-- 人気順位がある作品を上位から最大 30 本（`KEEP_RANKED`）
-- 残りはほかの作品から日付をシードにランダム（毎日入れ替わる）
-- サムネイルをクリックしたときにサンプル動画プレイヤーを読み込む
+| URL | 中身 |
+|---|---|
+| `/` | `fanza/` へ転送（`#v-xxx` も引き継ぐ） |
+| `/fanza/` | シート「API」から 100 本（人気順位上位 30 本＋日替わりランダム。発売済みのみ） |
+| `/mgs/` | シート「sheet」本文の MGS ウィジェット ＋ シート「MGS」 |
+| `/myfans/` | シート「sheet」本文の myfans リンク ＋ シート「myfans」 |
+
+上部の固定メニュー（プルダウン）で各ページに移動できる。
+シート「MGS」「myfans」は任意。列は `ID` / `タイトル` / `URL` / `画像URL` / `埋め込みHTML` / `説明`。
+
+## SNS 用の直リンク
+
+各動画ブロックは `id="v-<ID>"` を持つので、次の URL でそのブロックの位置に移動する。
+
+```
+https://<サイト>/fanza/#v-<content_id>      例: /fanza/#v-1namh00064
+https://<サイト>/mgs/#v-<品番(小文字)>       例: /mgs/#v-abf-331
+https://<サイト>/myfans/#v-<リンクのコード(小文字)>
+```
+
+- 各ブロックの「リンクをコピー」ボタンでこの URL をコピーできる
+- 一度掲載したブロックは `<platform>/catalog.json` に貯める。日替わりでページから消えたブロックの
+  リンクを開いた場合は、catalog.json から「シェアされた動画」としてページ先頭に差し込んで移動する
+  （最後に掲載した日が新しい順に最大 3000 件）
+
+## ファイル
+
+- `scripts/build.py` … xlsx を読んでページを生成（プラットフォーム追加は `PLATFORMS` と `LOADERS`）
+- `scripts/template.html` … 各プラットフォームページの雛形
+- `static/` … 共通 CSS / JS（`public/assets/` にコピーされる）
+- `public/` … 生成物（手で編集しない）
 
 ## 初回設定
 
 1. `pip install -r requirements.txt`
-2. GitHub の Settings → Secrets and variables → Actions に次を登録
-   `FTP_SERVER` / `FTP_USERNAME` / `FTP_PASSWORD` / `FTP_SERVER_DIR`（例 `ero/`、末尾 `/` 必須）
-   未設定の間はデプロイをスキップする
+2. GitHub の Settings → Secrets and variables → Actions に
+   `FTP_SERVER` / `FTP_USERNAME` / `FTP_PASSWORD` / `FTP_SERVER_DIR` を登録
 
 ## 手動で動かす
 
