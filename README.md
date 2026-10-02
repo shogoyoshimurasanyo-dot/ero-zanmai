@@ -16,11 +16,12 @@ FANZA / MGS / myfans の動画ブロックをプラットフォーム別に並�
 
 | URL | 中身 |
 |---|---|
-| `/` | `fanza/` へ転送（`#v-xxx` も引き継ぐ） |
-| `/fanza/` | シート「API」から 100 本（人気順位上位 30 本＋日替わりランダム。発売済みのみ） |
-| `/mgs/` | シート「sheet」本文の MGS ウィジェット ＋ シート「MGS」 |
-| `/myfans/` | シート「sheet」本文の myfans リンク ＋ シート「myfans」 |
+| `/` | `r8tq/`（FANZA）へ転送（`#v-xxx` も引き継ぐ） |
+| `/r8tq/` | FANZA: シート「API」から 100 本（人気順位上位 30 本＋日替わりランダム。発売済みのみ） |
+| `/k3wn/` | MGS: シート「sheet」本文の MGS ウィジェット ＋ シート「MGS」 |
+| `/p6hz/` | myfans: シート「sheet」本文の myfans リンク ＋ シート「myfans」 |
 
+URL のパスは商標を避けるため、サービス名と無関係な値にしている（`scripts/build.py` の `PLATFORMS[].path`）。
 上部の固定メニュー（プルダウン）で各ページに移動できる。
 シート「MGS」「myfans」は任意。列は `ID` / `タイトル` / `URL` / `画像URL` / `埋め込みHTML` / `説明`。
 
@@ -29,9 +30,9 @@ FANZA / MGS / myfans の動画ブロックをプラットフォーム別に並�
 各動画ブロックは `id="v-<ID>"` を持つので、次の URL でそのブロックの位置に移動する。
 
 ```
-https://<サイト>/fanza/#v-<content_id>      例: /fanza/#v-1namh00064
-https://<サイト>/mgs/#v-<品番(小文字)>       例: /mgs/#v-abf-331
-https://<サイト>/myfans/#v-<リンクのコード(小文字)>
+https://<サイト>/r8tq/#v-<content_id>       例: /r8tq/#v-1namh00064
+https://<サイト>/k3wn/#v-<品番(小文字)>       例: /k3wn/#v-abf-331
+https://<サイト>/p6hz/#v-<リンクのコード(小文字)>
 ```
 
 - 各ブロックの「リンクをコピー」ボタンでこの URL をコピーできる

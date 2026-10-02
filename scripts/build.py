@@ -2,13 +2,14 @@
 """
 最新の X_post_sheet_YYYYMMDD.xlsx から、プラットフォーム別のページを作る。
 
-  public/index.html            → fanza/ へ転送（#v-xxx も引き継ぐ）
-  public/<platform>/index.html  動画ブロックの一覧（各ブロックに id="v-<ID>"）
-  public/<platform>/catalog.json これまで掲載したブロックの HTML（日替わりで消えた
+  public/index.html            → 先頭プラットフォームのページへ転送（#v-xxx も引き継ぐ）
+  public/<path>/index.html      動画ブロックの一覧（各ブロックに id="v-<ID>"）
+  public/<path>/catalog.json これまで掲載したブロックの HTML（日替わりで消えた
                                  ブロックへの SNS リンクも開けるようにするため）
   public/assets/                static/ をコピー
 
-SNS 用リンク: https://<サイト>/<platform>/#v-<ID>
+SNS 用リンク: https://<サイト>/<path>/#v-<ID>
+  <path> は PLATFORMS の "path"。商標を URL に入れないため、サービス名とは無関係な値にしている
 
 プラットフォームごとのデータ元:
   fanza  … シート「API」。発売済みの作品から人気順位上位 KEEP_RANKED 件＋日替わりランダムで COUNT 件
@@ -47,9 +48,9 @@ PLAYER_URL = ("https://www.dmm.co.jp/litevideo/-/part/=/affi_id={affi}"
               "/cid={cid}/size=1280_720/")
 
 PLATFORMS = [
-    {"key": "fanza", "name": "FANZA", "cta": "FANZAで詳細を見る"},
-    {"key": "mgs", "name": "MGS", "cta": "MGS動画で詳細を見る"},
-    {"key": "myfans", "name": "myfans", "cta": "myfansで見る"},
+    {"key": "fanza", "path": "r8tq", "name": "FANZA", "cta": "FANZAで詳細を見る"},
+    {"key": "mgs", "path": "k3wn", "name": "MGS", "cta": "MGS動画で詳細を見る"},
+    {"key": "myfans", "path": "p6hz", "name": "myfans", "cta": "myfansで見る"},
 ]
 
 MGS_RE = re.compile(r'<div class="[^"]*"></div><script[^>]*mgs_Widget_affiliate[^>]*></script>')
@@ -242,7 +243,7 @@ def render_card(it, platform):
 
 def render_menu(current):
     links = "\n".join(
-        f'        <li><a href="../{p["key"]}/"{" aria-current=\"page\"" if p["key"] == current["key"] else ""}>{html.escape(p["name"])}</a></li>'
+        f'        <li><a href="../{p["path"]}/"{" aria-current=\"page\"" if p["key"] == current["key"] else ""}>{html.escape(p["name"])}</a></li>'
         for p in PLATFORMS)
     return f"""<details class="menu">
       <summary>{html.escape(current["name"])}</summary>
@@ -282,9 +283,9 @@ def update_catalog(path, platform, items):
 REDIRECT = """<!doctype html>
 <html lang="ja"><head><meta charset="utf-8"><meta name="robots" content="noindex">
 <title>{title}</title>
-<script>location.replace('fanza/' + location.hash);</script>
-<meta http-equiv="refresh" content="0; url=fanza/">
-</head><body><a href="fanza/">FANZA の動画一覧へ</a></body></html>
+<script>location.replace('{path}/' + location.hash);</script>
+<meta http-equiv="refresh" content="0; url={path}/">
+</head><body><a href="{path}/">動画一覧へ</a></body></html>
 """
 
 
@@ -293,10 +294,10 @@ def main():
     wb = openpyxl.load_workbook(path, read_only=True, data_only=True)
     OUT.mkdir(exist_ok=True)
     shutil.copytree(ROOT / "static", OUT / "assets", dirs_exist_ok=True)
-    (OUT / "index.html").write_text(REDIRECT.format(title=html.escape(SITE_TITLE)), encoding="utf-8")
+    (OUT / "index.html").write_text(REDIRECT.format(title=html.escape(SITE_TITLE), path=PLATFORMS[0]["path"]), encoding="utf-8")
     for p in PLATFORMS:
         items = LOADERS[p["key"]](wb)
-        d = OUT / p["key"]
+        d = OUT / p["path"]
         d.mkdir(exist_ok=True)
         (d / "index.html").write_text(render_page(p, items), encoding="utf-8")
         update_catalog(d / "catalog.json", p, items)
