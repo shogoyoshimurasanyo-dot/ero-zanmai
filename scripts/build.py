@@ -48,7 +48,7 @@ PLAYER_URL = ("https://www.dmm.co.jp/litevideo/-/part/=/affi_id={affi}"
               "/cid={cid}/size=1280_720/")
 
 PLATFORMS = [
-    {"key": "fanza", "path": "r8tq", "name": "FANZA", "cta": "FANZAで詳細を見る"},
+    {"key": "fanza", "path": "r8tq", "name": "えろざんまい", "cta": "詳細を見る"},
     {"key": "mgs", "path": "k3wn", "name": "MGS", "cta": "MGS動画で詳細を見る"},
     {"key": "myfans", "path": "p6hz", "name": "myfans", "cta": "myfansで見る"},
 ]
