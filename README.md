@@ -18,12 +18,25 @@ FANZA / MGS / myfans の動画ブロックをプラットフォーム別に並�
 |---|---|
 | `/` | `r8tq/`（FANZA）へ転送（`#v-xxx` も引き継ぐ） |
 | `/r8tq/` | えろざんまい（FANZA）: シート「API」から 100 本（人気順位上位 30 本＋日替わりランダム。発売済みのみ） |
-| `/k3wn/` | MGS: シート「sheet」本文の MGS ウィジェット ＋ シート「MGS」 |
+| `/k3wn/` | MGS: X 投稿用にピックアップした MGS 作品を累積で掲載（下記） |
 | `/p6hz/` | myfans: シート「sheet」本文の myfans リンク ＋ シート「myfans」 |
 
 URL のパスは商標を避けるため、サービス名と無関係な値にしている（`scripts/build.py` の `PLATFORMS[].path`）。
 上部の固定メニュー（プルダウン）で各ページに移動できる。
 シート「MGS」「myfans」は任意。列は `ID` / `タイトル` / `URL` / `画像URL` / `埋め込みHTML` / `説明`。
+
+## MGS タブ（/k3wn/）
+
+- 拾う作品（品番で重複除去）
+  - シート「sheet」本文の `https://www.mgstage.com/product/product_detail/<品番>/?aff=…`
+    （`fetch_mgs.py` → `publish_gassheet.py` で予約した MGS 投稿）。画像は G 列、無ければ候補の画像
+  - シート「sheet」本文の MGS ウィジェット（`mgs_Widget_affiliate`）
+  - シート「MGS」（任意）
+- タイトル・出演者は、この PC の `xposts/*/mgs_candidates.json` にあればそこから補う（無ければ投稿本文）
+- 拾った作品は `public/k3wn/items.json`（品番キー、`first`＝初めて載せた日）に貯める。
+  毎回のビルドで追加・更新し、xlsx から消えた作品も残す。ページには全件を `first` の新しい順で出す
+- `items.json` が無いときだけ、リポジトリ直下の過去の xlsx（最大 7 個）からも拾う
+  （作り直したいときは `items.json` を消してビルド。ただし 7 個より古い xlsx の作品は戻らない）
 
 ## SNS 用の直リンク
 

@@ -13,7 +13,8 @@ SNS 用リンク: https://<サイト>/<path>/#v-<ID>
 
 プラットフォームごとのデータ元:
   fanza  … シート「API」。発売済みの作品から人気順位上位 KEEP_RANKED 件＋日替わりランダムで COUNT 件
-  mgs    … シート「sheet」の本文にある MGS ウィジェット ＋ シート「MGS」（あれば）
+  mgs    … シート「sheet」の本文にある MGS ウィジェット・mgstage.com の商品リンク ＋ シート「MGS」（あれば）
+           拾った作品は public/k3wn/items.json に貯め、xlsx から消えてもページに残す
   myfans … シート「sheet」の本文にある myfans リンク ＋ シート「myfans」（あれば）
   シート「MGS」「myfans」の列: ID / タイトル / URL / 画像URL / 埋め込みHTML / 説明
 
@@ -54,6 +55,9 @@ PLATFORMS = [
 ]
 
 MGS_RE = re.compile(r'<div class="[^"]*"></div><script[^>]*mgs_Widget_affiliate[^>]*></script>')
+# X 投稿（fetch_mgs.py → publish_gassheet.py）の本文末尾にある MGS 商品ページのリンク
+MGS_URL_RE = re.compile(r"https://www\.mgstage\.com/product/product_detail/([A-Za-z0-9_-]+)/\S*")
+MGS_BACKFILL = 7  # items.json を初めて作るとき、過去の xlsx を何個さかのぼるか
 MYFANS_RE = re.compile(r"https://link\.affiliate\.myfans\.jp/r/(\w+)")
 URL_RE = re.compile(r"https?://\S+")
 
@@ -132,11 +136,24 @@ def load_fanza(wb):
     return picked
 
 
-def post_texts(wb):
-    """シート「sheet」（X 投稿）の本文を新しい投稿日順に返す。"""
+def post_rows(wb):
+    """シート「sheet」（X 投稿）の行を新しい投稿日順に返す。"""
     rows = [r for r in sheet_rows(wb, "sheet") if isinstance(r.get("本文"), str)]
     rows.sort(key=lambda r: as_date(r.get("投稿日")) or dt.date.min, reverse=True)
-    return [(r["本文"].replace('""', '"'), as_date(r.get("投稿日"))) for r in rows]
+    return rows
+
+
+def post_texts(wb):
+    """シート「sheet」（X 投稿）の本文を新しい投稿日順に返す。"""
+    return [(r["本文"].replace('""', '"'), as_date(r.get("投稿日"))) for r in post_rows(wb)]
+
+
+def post_media(r):
+    """G 列「画像または動画ファイル（…）」の値（見出しが長いので前方一致で探す）。"""
+    for k, v in r.items():
+        if k.startswith("画像") and isinstance(v, str) and v.startswith("http"):
+            return v
+    return ""
 
 
 def caption(text):
@@ -161,22 +178,88 @@ def load_extra_sheet(wb, name):
     return out
 
 
+def mgs_candidates():
+    """xposts/*/mgs_candidates.json（fetch_mgs.py の出力）の作品情報 {品番: {...}}。
+    xposts/ は .gitignore なので、この PC にあるときだけタイトル・出演者を補う。"""
+    out = {}
+    for p in sorted((ROOT / "xposts").glob("*/mgs_candidates.json")):
+        try:
+            data = json.loads(p.read_text(encoding="utf-8"))
+        except ValueError:
+            continue
+        for i in data.get("items", []):
+            if i.get("pid"):
+                out[i["pid"]] = i
+    return out
+
+
 def load_mgs(wb):
     items = load_extra_sheet(wb, "MGS")
-    for text, posted in post_texts(wb):
+    cands = None
+    for r in post_rows(wb):
+        text = r["本文"].replace('""', '"')
+        posted = as_date(r.get("投稿日"))
+        day = posted.isoformat() if posted else ""
+        head, desc = caption(text)
         m = MGS_RE.search(text)
+        if m:
+            src = re.search(r'src="([^"]+)"', m.group(0)).group(1)
+            q = parse_qs(urlparse(html.unescape(src)).query)
+            pid = (q.get("p") or [src])[0]
+            title = (q.get("s") or [""])[0]
+            items.append(item(
+                pid, title or head, f"https://www.mgstage.com/product/product_detail/{pid}/",
+                embed=m.group(0), desc=head if title else desc, meta=day, posted=day))
+            continue
+        m = MGS_URL_RE.search(text)
         if not m:
             continue
-        src = re.search(r'src="([^"]+)"', m.group(0)).group(1)
-        q = parse_qs(urlparse(html.unescape(src)).query)
-        pid = (q.get("p") or [src])[0]
-        title = (q.get("s") or [""])[0]
-        head, desc = caption(text)
+        if cands is None:
+            cands = mgs_candidates()
+        pid = m.group(1)
+        c = cands.get(pid, {})
+        title = c.get("title", "")
         items.append(item(
-            pid, title or head, f"https://www.mgstage.com/product/product_detail/{pid}/",
-            embed=m.group(0), desc=head if title else desc,
-            meta=posted.isoformat() if posted else ""))
+            pid, title or head, m.group(0),
+            image=post_media(r) or c.get("image", ""),
+            desc=head if title else desc,
+            meta=" / ".join(x for x in (c.get("actor"), day) if x), posted=day))
     return dedupe(items)
+
+
+def accumulate(path, items, first, backfill=()):
+    """これまで拾った作品を items.json に貯めて、全件を「初めて載せた日」の新しい順で返す。
+    {id: {カード表示の項目..., "first": "YYYY-MM-DD"}}。今回拾った作品は内容を更新し、
+    拾えなかった作品も消さない。items.json がまだ無いときは backfill の
+    [(日付, items), ...]（古い順）を先に入れる。"""
+    try:
+        store = json.loads(path.read_text(encoding="utf-8"))
+    except (FileNotFoundError, ValueError):
+        store = {}
+        for day, old in backfill:
+            for it in old:
+                store[it["id"]] = {**it, "first": store.get(it["id"], {}).get("first", day)}
+    for it in items:
+        store[it["id"]] = {**it, "first": store.get(it["id"], {}).get("first", first)}
+    path.write_text(json.dumps(store, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    return sorted(store.values(), key=lambda i: (i["first"], i.get("posted", "")), reverse=True)
+
+
+def xlsx_date(path):
+    m = re.search(r"(\d{4})(\d{2})(\d{2})", path.name)
+    return f"{m.group(1)}-{m.group(2)}-{m.group(3)}" if m else TODAY.isoformat()
+
+
+def mgs_backfill(current):
+    """リポジトリ直下に残っている過去の xlsx（最大 MGS_BACKFILL 個）から MGS 作品を拾う。"""
+    out = []
+    for p in sorted(ROOT.glob("X_post_sheet_*.xlsx"))[-MGS_BACKFILL:]:
+        if p.resolve() == current.resolve():
+            continue
+        wb = openpyxl.load_workbook(p, read_only=True, data_only=True)
+        out.append((xlsx_date(p), load_mgs(wb)))
+        wb.close()
+    return out
 
 
 def load_myfans(wb):
@@ -299,10 +382,17 @@ def main():
         items = LOADERS[p["key"]](wb)
         d = OUT / p["path"]
         d.mkdir(exist_ok=True)
-        (d / "index.html").write_text(render_page(p, items), encoding="utf-8")
+        shown = items
+        if p["key"] == "mgs":
+            # MGS は一度載せた作品を残し続ける（public/k3wn/items.json）
+            store = d / "items.json"
+            shown = accumulate(store, items, TODAY.isoformat(),
+                               backfill=() if store.exists() else mgs_backfill(path))
+        (d / "index.html").write_text(render_page(p, shown), encoding="utf-8")
         update_catalog(d / "catalog.json", p, items)
         # ログ（cp932）で化けないよう ASCII で出す
-        print(f"{path.name}: {p['key']} {len(items)} items")
+        extra = f" (from xlsx {len(items)})" if shown is not items else ""
+        print(f"{path.name}: {p['key']} {len(shown)} items{extra}")
 
 
 if __name__ == "__main__":
