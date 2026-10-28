@@ -1,0 +1,4 @@
+# 流入ログはブラウザから見えないようにする（件数は hit.php?stats=1 で見る）
+<FilesMatch "\.log$">
+  Require all denied
+</FilesMatch>

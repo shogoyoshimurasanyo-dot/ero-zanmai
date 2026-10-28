@@ -1,6 +1,13 @@
 (function () {
   var grid = document.querySelector('.grid');
 
+  // X などからの流入を記録する（リンクに utm_source が付いているときだけ。件数は assets/hit.php?stats=1）
+  var src = new URLSearchParams(location.search).get('utm_source');
+  if (src && navigator.sendBeacon) {
+    navigator.sendBeacon('../assets/hit.php?src=' + encodeURIComponent(src) +
+      '&cid=' + encodeURIComponent(location.hash.replace(/^#v-/, '')));
+  }
+
   // 年齢確認
   var age = document.getElementById('age');
   var ok = false;
